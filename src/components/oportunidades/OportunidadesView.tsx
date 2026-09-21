@@ -22,7 +22,7 @@ import type { Option } from "@/components/polizas/PolizaForm";
 
 function formatMonto(monto: number | null) {
   if (monto === null) return "—";
-  return new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(
+  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
     monto
   );
 }

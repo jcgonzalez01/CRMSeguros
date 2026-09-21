@@ -15,7 +15,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PolizaForm, type Option } from "./PolizaForm";
 
 function formatMonto(monto: number) {
-  return new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(
+  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
     monto
   );
 }
