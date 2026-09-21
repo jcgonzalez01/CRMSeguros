@@ -1,11 +1,18 @@
-export default function TareasPage() {
+import { createClient } from "@/lib/supabase/server";
+import { listTareas } from "@/lib/queries/tareas";
+import { listClientesOptions } from "@/lib/queries/polizas";
+import { listProfiles } from "@/lib/queries/clientes";
+import { TareasView } from "@/components/tareas/TareasView";
+
+export default async function TareasPage() {
+  const supabase = await createClient();
+  const [tareas, clientes, miembros] = await Promise.all([
+    listTareas(supabase),
+    listClientesOptions(supabase),
+    listProfiles(supabase),
+  ]);
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Tareas</h1>
-      <p className="mt-2 text-sm text-gray-500">
-        El listado y checkbox rápido de tareas se construyen en la Fase 6
-        del plan.
-      </p>
-    </div>
+    <TareasView initialTareas={tareas} clientes={clientes} miembros={miembros} />
   );
 }

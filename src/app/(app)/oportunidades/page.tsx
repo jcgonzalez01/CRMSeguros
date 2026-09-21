@@ -1,10 +1,27 @@
-export default function OportunidadesPage() {
+import { createClient } from "@/lib/supabase/server";
+import {
+  listOportunidades,
+  getTotalesOportunidades,
+} from "@/lib/queries/oportunidades";
+import { listClientesOptions } from "@/lib/queries/polizas";
+import { listProfiles } from "@/lib/queries/clientes";
+import { OportunidadesView } from "@/components/oportunidades/OportunidadesView";
+
+export default async function OportunidadesPage() {
+  const supabase = await createClient();
+  const [oportunidades, totales, clientes, propietarios] = await Promise.all([
+    listOportunidades(supabase),
+    getTotalesOportunidades(supabase),
+    listClientesOptions(supabase),
+    listProfiles(supabase),
+  ]);
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Oportunidades</h1>
-      <p className="mt-2 text-sm text-gray-500">
-        El pipeline de oportunidades se construye en la Fase 5 del plan.
-      </p>
-    </div>
+    <OportunidadesView
+      initialOportunidades={oportunidades}
+      initialTotales={totales}
+      clientes={clientes}
+      propietarios={propietarios}
+    />
   );
 }
