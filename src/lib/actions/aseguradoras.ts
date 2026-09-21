@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import type { Database } from "@/lib/types/database.types";
 
 const aseguradoraSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio"),
@@ -15,10 +17,12 @@ export async function createAseguradora(input: AseguradoraInput) {
   const parsed = aseguradoraSchema.parse(input);
   const supabase = await createClient();
 
-  const { error } = await supabase.from("aseguradoras").insert({
-    nombre: parsed.nombre,
-    notas: parsed.notas || null,
-  });
+  const { error } = await supabase.from("aseguradoras").insert(
+    omitEmpresaId<Database["public"]["Tables"]["aseguradoras"]["Insert"]>({
+      nombre: parsed.nombre,
+      notas: parsed.notas || null,
+    })
+  );
 
   if (error) throw new Error(error.message);
   revalidatePath("/aseguradoras");

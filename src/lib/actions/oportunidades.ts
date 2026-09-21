@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import type { Database } from "@/lib/types/database.types";
 
 const oportunidadSchema = z.object({
   cliente_id: z.string().uuid("Selecciona un cliente"),
@@ -37,7 +39,11 @@ export async function createOportunidad(input: OportunidadInput) {
 
   const { error } = await supabase
     .from("oportunidades")
-    .insert(toValues(parsed));
+    .insert(
+      omitEmpresaId<Database["public"]["Tables"]["oportunidades"]["Insert"]>(
+        toValues(parsed)
+      )
+    );
 
   if (error) throw new Error(error.message);
   revalidatePath("/oportunidades");

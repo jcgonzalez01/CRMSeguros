@@ -41,5 +41,29 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Route by role: Manager is platform-only (manages empresas, never sees
+  // a tenant's business data), Admin is scoped to their own empresa and
+  // never sees the platform area.
+  if (data?.claims && !isPublicPath) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.claims.sub as string)
+      .single();
+
+    const isPlatformPath = request.nextUrl.pathname.startsWith("/plataforma");
+
+    if (profile?.role === "Manager" && !isPlatformPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/plataforma";
+      return NextResponse.redirect(url);
+    }
+    if (profile?.role === "Admin" && isPlatformPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return supabaseResponse;
 }

@@ -42,29 +42,41 @@ export type Database = {
       aseguradoras: {
         Row: {
           created_at: string
+          empresa_id: string
           id: string
           nombre: string
           notas: string | null
         }
         Insert: {
           created_at?: string
+          empresa_id: string
           id?: string
           nombre: string
           notas?: string | null
         }
         Update: {
           created_at?: string
+          empresa_id?: string
           id?: string
           nombre?: string
           notas?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "aseguradoras_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clientes: {
         Row: {
           correo: string | null
           created_at: string
           created_by: string | null
+          empresa_id: string
           id: string
           nombre: string
           notas: string | null
@@ -76,6 +88,7 @@ export type Database = {
           correo?: string | null
           created_at?: string
           created_by?: string | null
+          empresa_id: string
           id?: string
           nombre: string
           notas?: string | null
@@ -87,6 +100,7 @@ export type Database = {
           correo?: string | null
           created_at?: string
           created_by?: string | null
+          empresa_id?: string
           id?: string
           nombre?: string
           notas?: string | null
@@ -103,6 +117,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "clientes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "clientes_propietario_id_fkey"
             columns: ["propietario_id"]
             isOneToOne: false
@@ -111,10 +132,32 @@ export type Database = {
           },
         ]
       }
+      empresas: {
+        Row: {
+          activa: boolean
+          created_at: string
+          id: string
+          nombre: string
+        }
+        Insert: {
+          activa?: boolean
+          created_at?: string
+          id?: string
+          nombre: string
+        }
+        Update: {
+          activa?: boolean
+          created_at?: string
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       oportunidades: {
         Row: {
           cliente_id: string
           created_at: string
+          empresa_id: string
           estado: Database["public"]["Enums"]["opportunity_status"]
           fecha_cierre: string | null
           id: string
@@ -127,6 +170,7 @@ export type Database = {
         Insert: {
           cliente_id: string
           created_at?: string
+          empresa_id: string
           estado?: Database["public"]["Enums"]["opportunity_status"]
           fecha_cierre?: string | null
           id?: string
@@ -139,6 +183,7 @@ export type Database = {
         Update: {
           cliente_id?: string
           created_at?: string
+          empresa_id?: string
           estado?: Database["public"]["Enums"]["opportunity_status"]
           fecha_cierre?: string | null
           id?: string
@@ -157,6 +202,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "oportunidades_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "oportunidades_propietario_id_fkey"
             columns: ["propietario_id"]
             isOneToOne: false
@@ -170,6 +222,7 @@ export type Database = {
           aseguradora_id: string
           cliente_id: string
           created_at: string
+          empresa_id: string
           estado: Database["public"]["Enums"]["policy_status"]
           fecha_emision: string
           fecha_vencimiento: string
@@ -185,6 +238,7 @@ export type Database = {
           aseguradora_id: string
           cliente_id: string
           created_at?: string
+          empresa_id: string
           estado?: Database["public"]["Enums"]["policy_status"]
           fecha_emision: string
           fecha_vencimiento: string
@@ -200,6 +254,7 @@ export type Database = {
           aseguradora_id?: string
           cliente_id?: string
           created_at?: string
+          empresa_id?: string
           estado?: Database["public"]["Enums"]["policy_status"]
           fecha_emision?: string
           fecha_vencimiento?: string
@@ -234,6 +289,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "polizas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "polizas_propietario_id_fkey"
             columns: ["propietario_id"]
             isOneToOne: false
@@ -246,22 +308,36 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          empresa_id: string | null
           full_name: string
           id: string
+          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           created_at?: string
           email: string
+          empresa_id?: string | null
           full_name: string
           id: string
+          role: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           created_at?: string
           email?: string
+          empresa_id?: string | null
           full_name?: string
           id?: string
+          role?: Database["public"]["Enums"]["user_role"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tareas: {
         Row: {
@@ -269,6 +345,7 @@ export type Database = {
           cliente_id: string | null
           created_at: string
           descripcion: string | null
+          empresa_id: string
           estado: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id: string
@@ -280,6 +357,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string
           descripcion?: string | null
+          empresa_id: string
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id?: string
@@ -291,6 +369,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string
           descripcion?: string | null
+          empresa_id?: string
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite?: string
           id?: string
@@ -310,6 +389,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
@@ -651,13 +737,23 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      current_user_empresa_id: { Args: never; Returns: string }
+      current_user_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      provisionar_empresa: { Args: { p_nombre: string }; Returns: string }
+      sembrar_aseguradoras_default: {
+        Args: { p_empresa: string }
+        Returns: undefined
+      }
     }
     Enums: {
       opportunity_status: "abierta" | "ganada" | "perdida"
       payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
       policy_status: "activa" | "vencida" | "cancelada"
       task_status: "pendiente" | "completada"
+      user_role: "Admin" | "Manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -792,6 +888,7 @@ export const Constants = {
       payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
       policy_status: ["activa", "vencida", "cancelada"],
       task_status: ["pendiente", "completada"],
+      user_role: ["Admin", "Manager"],
     },
   },
 } as const
@@ -801,3 +898,4 @@ export type PolicyStatus = Database["public"]["Enums"]["policy_status"]
 export type PaymentPlan = Database["public"]["Enums"]["payment_plan"]
 export type OpportunityStatus = Database["public"]["Enums"]["opportunity_status"]
 export type TaskStatus = Database["public"]["Enums"]["task_status"]
+export type UserRole = Database["public"]["Enums"]["user_role"]

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import type { Database } from "@/lib/types/database.types";
 
 const tareaSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio"),
@@ -30,7 +32,11 @@ export async function createTarea(input: TareaInput) {
   const parsed = tareaSchema.parse(input);
   const supabase = await createClient();
 
-  const { error } = await supabase.from("tareas").insert(toValues(parsed));
+  const { error } = await supabase.from("tareas").insert(
+    omitEmpresaId<Database["public"]["Tables"]["tareas"]["Insert"]>(
+      toValues(parsed)
+    )
+  );
 
   if (error) throw new Error(error.message);
   revalidatePath("/tareas");

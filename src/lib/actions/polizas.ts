@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import type { Database } from "@/lib/types/database.types";
 
 const polizaSchema = z.object({
   cliente_id: z.string().uuid("Selecciona un cliente"),
@@ -38,7 +40,11 @@ export async function createPoliza(input: PolizaInput) {
   const parsed = polizaSchema.parse(input);
   const supabase = await createClient();
 
-  const { error } = await supabase.from("polizas").insert(toInsertValues(parsed));
+  const { error } = await supabase.from("polizas").insert(
+    omitEmpresaId<Database["public"]["Tables"]["polizas"]["Insert"]>(
+      toInsertValues(parsed)
+    )
+  );
 
   if (error) {
     if (error.code === "23505") {

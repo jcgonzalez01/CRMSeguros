@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import type { Database } from "@/lib/types/database.types";
 
 const clienteSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio"),
@@ -26,14 +28,16 @@ export async function createCliente(input: ClienteInput) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("clientes").insert({
-    nombre: parsed.nombre,
-    telefono: parsed.telefono || null,
-    correo: parsed.correo || null,
-    notas: parsed.notas || null,
-    propietario_id: parsed.propietario_id || null,
-    created_by: user?.id ?? null,
-  });
+  const { error } = await supabase.from("clientes").insert(
+    omitEmpresaId<Database["public"]["Tables"]["clientes"]["Insert"]>({
+      nombre: parsed.nombre,
+      telefono: parsed.telefono || null,
+      correo: parsed.correo || null,
+      notas: parsed.notas || null,
+      propietario_id: parsed.propietario_id || null,
+      created_by: user?.id ?? null,
+    })
+  );
 
   if (error) throw new Error(error.message);
   revalidatePath("/clientes");
