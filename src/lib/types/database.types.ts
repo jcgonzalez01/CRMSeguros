@@ -233,23 +233,23 @@ export interface Database {
     Views: {
       v_polizas_vencen_semana: {
         Row: Database["public"]["Tables"]["polizas"]["Row"];
-        Relationships: [];
+        Relationships: Database["public"]["Tables"]["polizas"]["Relationships"];
       };
       v_polizas_vencidas: {
         Row: Database["public"]["Tables"]["polizas"]["Row"];
-        Relationships: [];
+        Relationships: Database["public"]["Tables"]["polizas"]["Relationships"];
       };
       v_tareas_semana: {
         Row: Database["public"]["Tables"]["tareas"]["Row"];
-        Relationships: [];
+        Relationships: Database["public"]["Tables"]["tareas"]["Relationships"];
       };
       v_tareas_atrasadas: {
         Row: Database["public"]["Tables"]["tareas"]["Row"];
-        Relationships: [];
+        Relationships: Database["public"]["Tables"]["tareas"]["Relationships"];
       };
       v_oportunidades_semana: {
         Row: Database["public"]["Tables"]["oportunidades"]["Row"];
-        Relationships: [];
+        Relationships: Database["public"]["Tables"]["oportunidades"]["Relationships"];
       };
       v_resumen_financiero: {
         Row: {
