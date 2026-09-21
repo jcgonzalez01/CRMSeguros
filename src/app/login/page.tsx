@@ -34,10 +34,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="flex flex-1 items-center justify-center px-4 bg-gray-50">
+      <div className="w-full max-w-sm space-y-6 rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold">CRM Seguros</h1>
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 text-sm font-bold text-white">
+            CS
+          </div>
+          <h1 className="text-2xl font-semibold text-gray-900">CRM Seguros</h1>
           <p className="text-sm text-gray-500 mt-1">
             Ingresa con tu cuenta de equipo
           </p>

@@ -111,7 +111,7 @@ export function OportunidadesView({
         {(["abierta", "ganada", "perdida"] as const).map((key) => {
           const totalRow = totales?.find((t) => t.estado === key);
           return (
-            <div key={key} className="rounded-lg border border-gray-200 bg-white p-4">
+            <div key={key} className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
               <p className="text-sm text-gray-500">{ESTADO_LABELS[key]}</p>
               <p className="text-xl font-semibold">{totalRow?.cantidad ?? 0}</p>
               <p className="text-sm text-gray-500">
@@ -141,7 +141,7 @@ export function OportunidadesView({
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>

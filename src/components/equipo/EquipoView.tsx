@@ -40,7 +40,7 @@ export function EquipoView({ miembros }: { miembros: Miembro[] }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {miembros.map((m) => (
-          <div key={m.id} className="rounded-lg border border-gray-200 bg-white p-4">
+          <div key={m.id} className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
             <p className="font-medium">{m.full_name}</p>
             <p className="text-sm text-gray-500">{m.email}</p>
             <p className="text-xs text-gray-400 mt-2">

@@ -15,7 +15,7 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
       <p className="text-sm text-gray-500">{label}</p>
       <p className={`text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>

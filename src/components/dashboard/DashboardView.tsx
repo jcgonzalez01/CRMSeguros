@@ -130,35 +130,35 @@ export function DashboardView({ initialData }: { initialData: DashboardData }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
           <h2 className="text-sm font-semibold px-4 py-3 border-b border-gray-100">
             Pólizas que vencen esta semana
           </h2>
           <PolizaList polizas={data.polizasVencenSemana} />
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
           <h2 className="text-sm font-semibold px-4 py-3 border-b border-gray-100">
             Pólizas vencidas
           </h2>
           <PolizaList polizas={data.polizasVencidas} />
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
           <h2 className="text-sm font-semibold px-4 py-3 border-b border-gray-100">
             Tareas de la semana
           </h2>
           <TareaList tareas={data.tareasSemana} />
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
           <h2 className="text-sm font-semibold px-4 py-3 border-b border-gray-100">
             Tareas atrasadas
           </h2>
           <TareaList tareas={data.tareasAtrasadas} />
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white lg:col-span-2">
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm lg:col-span-2">
           <h2 className="text-sm font-semibold px-4 py-3 border-b border-gray-100">
             Oportunidades ganadas/perdidas de la semana
           </h2>
