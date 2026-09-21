@@ -1,11 +1,27 @@
-export default function PolizasPage() {
+import { createClient } from "@/lib/supabase/server";
+import {
+  listPolizas,
+  listClientesOptions,
+  listAseguradorasOptions,
+} from "@/lib/queries/polizas";
+import { listProfiles } from "@/lib/queries/clientes";
+import { PolizasView } from "@/components/polizas/PolizasView";
+
+export default async function PolizasPage() {
+  const supabase = await createClient();
+  const [polizas, clientes, aseguradoras, propietarios] = await Promise.all([
+    listPolizas(supabase),
+    listClientesOptions(supabase),
+    listAseguradorasOptions(supabase),
+    listProfiles(supabase),
+  ]);
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Pólizas</h1>
-      <p className="mt-2 text-sm text-gray-500">
-        El listado, filtros y alta de pólizas se construyen en la Fase 4 del
-        plan.
-      </p>
-    </div>
+    <PolizasView
+      initialPolizas={polizas}
+      clientes={clientes}
+      aseguradoras={aseguradoras}
+      propietarios={propietarios}
+    />
   );
 }
