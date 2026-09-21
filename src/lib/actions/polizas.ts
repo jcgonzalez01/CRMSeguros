@@ -23,7 +23,12 @@ const polizaSchema = z.object({
   propietario_id: z.string().uuid().optional().or(z.literal("")),
   beneficiarios: z.string().trim().optional().or(z.literal("")),
   notas: z.string().trim().optional().or(z.literal("")),
-});
+  comision_tipo: z.enum(["monto", "porcentaje"]).optional().or(z.literal("")),
+  comision_valor: z.coerce.number().positive().optional().nullable(),
+}).refine(
+  (data) => !data.comision_tipo || (data.comision_valor && data.comision_valor > 0),
+  { message: "Ingresa el valor de la comisión", path: ["comision_valor"] }
+);
 
 export type PolizaInput = z.infer<typeof polizaSchema>;
 
@@ -44,6 +49,8 @@ function toInsertValues(parsed: PolizaInput) {
     propietario_id: parsed.propietario_id || null,
     beneficiarios: parsed.beneficiarios || null,
     notas: parsed.notas || null,
+    comision_tipo: parsed.comision_tipo || null,
+    comision_valor: parsed.comision_tipo ? parsed.comision_valor ?? null : null,
   };
 }
 

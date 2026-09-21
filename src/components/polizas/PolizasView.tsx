@@ -233,6 +233,8 @@ export function PolizasView({
                 propietario_id: editing.propietario_id ?? "",
                 beneficiarios: editing.beneficiarios ?? "",
                 notas: editing.notas ?? "",
+                comision_tipo: editing.comision_tipo ?? "",
+                comision_valor: editing.comision_valor,
               }}
               onSubmit={handleUpdate}
               onCancel={() => setEditing(null)}

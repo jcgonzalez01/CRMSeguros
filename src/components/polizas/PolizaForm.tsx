@@ -61,6 +61,8 @@ export function PolizaForm({
     propietario_id: defaultValues?.propietario_id ?? "",
     beneficiarios: defaultValues?.beneficiarios ?? "",
     notas: defaultValues?.notas ?? "",
+    comision_tipo: defaultValues?.comision_tipo ?? "",
+    comision_valor: defaultValues?.comision_valor ?? null,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -277,6 +279,48 @@ export function PolizaForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Comisión</label>
+          <select
+            value={form.comision_tipo}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                comision_tipo: e.target.value as PolizaInput["comision_tipo"],
+                comision_valor: e.target.value ? form.comision_valor : null,
+              })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Sin comisión</option>
+            <option value="monto">Monto fijo</option>
+            <option value="porcentaje">Porcentaje</option>
+          </select>
+        </div>
+        {form.comision_tipo && (
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {form.comision_tipo === "porcentaje" ? "Porcentaje (%)" : "Monto de comisión"}
+            </label>
+            <input
+              type="number"
+              min="0"
+              step={form.comision_tipo === "porcentaje" ? "0.1" : "0.01"}
+              required
+              value={form.comision_valor ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  comision_valor: e.target.value ? Number(e.target.value) : null,
+                })
+              }
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
       </div>
 
       <div>

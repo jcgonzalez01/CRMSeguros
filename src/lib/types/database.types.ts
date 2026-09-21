@@ -294,6 +294,9 @@ export type Database = {
           aseguradora_id: string
           beneficiarios: string | null
           cliente_id: string
+          comision_monto: number | null
+          comision_tipo: Database["public"]["Enums"]["comision_tipo"] | null
+          comision_valor: number | null
           created_at: string
           deducible: number | null
           empresa_id: string
@@ -315,6 +318,9 @@ export type Database = {
           aseguradora_id: string
           beneficiarios?: string | null
           cliente_id: string
+          comision_monto?: number | null
+          comision_tipo?: Database["public"]["Enums"]["comision_tipo"] | null
+          comision_valor?: number | null
           created_at?: string
           deducible?: number | null
           empresa_id: string
@@ -336,6 +342,9 @@ export type Database = {
           aseguradora_id?: string
           beneficiarios?: string | null
           cliente_id?: string
+          comision_monto?: number | null
+          comision_tipo?: Database["public"]["Enums"]["comision_tipo"] | null
+          comision_valor?: number | null
           created_at?: string
           deducible?: number | null
           empresa_id?: string
@@ -842,6 +851,7 @@ export type Database = {
       }
     }
     Enums: {
+      comision_tipo: "monto" | "porcentaje"
       moneda_poliza: "DOP" | "USD"
       opportunity_status: "abierta" | "ganada" | "perdida"
       payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
@@ -978,6 +988,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      comision_tipo: ["monto", "porcentaje"],
       moneda_poliza: ["DOP", "USD"],
       opportunity_status: ["abierta", "ganada", "perdida"],
       payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
@@ -995,3 +1006,4 @@ export type OpportunityStatus = Database["public"]["Enums"]["opportunity_status"
 export type TaskStatus = Database["public"]["Enums"]["task_status"]
 export type UserRole = Database["public"]["Enums"]["user_role"]
 export type MonedaPoliza = Database["public"]["Enums"]["moneda_poliza"]
+export type ComisionTipo = Database["public"]["Enums"]["comision_tipo"]
