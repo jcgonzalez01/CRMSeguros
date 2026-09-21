@@ -23,6 +23,11 @@ const ESTADO_LABELS: Record<PolizaInput["estado"], string> = {
   cancelada: "Cancelada",
 };
 
+const MONEDA_LABELS: Record<PolizaInput["moneda"], string> = {
+  DOP: "RD$",
+  USD: "US$",
+};
+
 export function PolizaForm({
   defaultValues,
   clientes,
@@ -48,9 +53,14 @@ export function PolizaForm({
     fecha_emision: defaultValues?.fecha_emision ?? "",
     fecha_vencimiento: defaultValues?.fecha_vencimiento ?? "",
     monto: defaultValues?.monto ?? 0,
+    moneda: defaultValues?.moneda ?? "DOP",
+    suma_asegurada: defaultValues?.suma_asegurada ?? null,
+    deducible: defaultValues?.deducible ?? null,
     plan_pago: defaultValues?.plan_pago ?? "mensual",
     estado: defaultValues?.estado ?? "activa",
     propietario_id: defaultValues?.propietario_id ?? "",
+    beneficiarios: defaultValues?.beneficiarios ?? "",
+    notas: defaultValues?.notas ?? "",
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -153,7 +163,7 @@ export function PolizaForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Monto *</label>
           <input
@@ -165,6 +175,22 @@ export function PolizaForm({
             onChange={(e) => setForm({ ...form, monto: Number(e.target.value) })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Moneda *</label>
+          <select
+            value={form.moneda}
+            onChange={(e) =>
+              setForm({ ...form, moneda: e.target.value as PolizaInput["moneda"] })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {Object.entries(MONEDA_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Plan de pago *</label>
@@ -181,6 +207,41 @@ export function PolizaForm({
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Suma asegurada</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={form.suma_asegurada ?? ""}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                suma_asegurada: e.target.value ? Number(e.target.value) : null,
+              })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Deducible</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={form.deducible ?? ""}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                deducible: e.target.value ? Number(e.target.value) : null,
+              })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
       </div>
 
@@ -216,6 +277,25 @@ export function PolizaForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Beneficiarios</label>
+        <input
+          value={form.beneficiarios}
+          onChange={(e) => setForm({ ...form, beneficiarios: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Notas</label>
+        <textarea
+          value={form.notas}
+          onChange={(e) => setForm({ ...form, notas: e.target.value })}
+          rows={3}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

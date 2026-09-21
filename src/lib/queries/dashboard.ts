@@ -14,7 +14,8 @@ export async function getDashboardData(supabase: Client) {
     tareasSemana,
     tareasAtrasadas,
     oportunidadesSemana,
-    resumenFinanciero,
+    primaActivaPorMoneda,
+    montoGanado,
   ] = await Promise.all([
     supabase
       .from("v_polizas_vencen_semana")
@@ -36,7 +37,8 @@ export async function getDashboardData(supabase: Client) {
       .from("v_oportunidades_semana")
       .select(OPORTUNIDAD_DASHBOARD_SELECT)
       .order("fecha_cierre", { ascending: false }),
-    supabase.from("v_resumen_financiero").select("*").single(),
+    supabase.from("v_prima_activa_por_moneda").select("*"),
+    supabase.from("v_monto_ganado").select("*").single(),
   ]);
 
   if (polizasVencenSemana.error) throw polizasVencenSemana.error;
@@ -44,7 +46,8 @@ export async function getDashboardData(supabase: Client) {
   if (tareasSemana.error) throw tareasSemana.error;
   if (tareasAtrasadas.error) throw tareasAtrasadas.error;
   if (oportunidadesSemana.error) throw oportunidadesSemana.error;
-  if (resumenFinanciero.error) throw resumenFinanciero.error;
+  if (primaActivaPorMoneda.error) throw primaActivaPorMoneda.error;
+  if (montoGanado.error) throw montoGanado.error;
 
   return {
     polizasVencenSemana: polizasVencenSemana.data,
@@ -52,7 +55,8 @@ export async function getDashboardData(supabase: Client) {
     tareasSemana: tareasSemana.data,
     tareasAtrasadas: tareasAtrasadas.data,
     oportunidadesSemana: oportunidadesSemana.data,
-    resumenFinanciero: resumenFinanciero.data,
+    primaActivaPorMoneda: primaActivaPorMoneda.data,
+    montoGanado: montoGanado.data.monto_ganado,
   };
 }
 

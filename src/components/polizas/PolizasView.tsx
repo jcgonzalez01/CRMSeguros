@@ -9,15 +9,19 @@ import {
   updatePoliza,
   type PolizaInput,
 } from "@/lib/actions/polizas";
-import type { PolicyStatus } from "@/lib/types/database.types";
+import type { MonedaPoliza, PolicyStatus } from "@/lib/types/database.types";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PolizaForm, type Option } from "./PolizaForm";
+import { PolizaDocumentos } from "./PolizaDocumentos";
 
-function formatMonto(monto: number) {
-  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
-    monto
-  );
+const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
+
+function formatMonto(monto: number, moneda: MonedaPoliza) {
+  return new Intl.NumberFormat(MONEDA_LOCALE[moneda], {
+    style: "currency",
+    currency: moneda,
+  }).format(monto);
 }
 
 function formatFecha(fecha: string) {
@@ -63,9 +67,12 @@ export function PolizasView({
   }
 
   async function handleCreate(input: PolizaInput) {
-    await createPoliza(input);
+    const nueva = await createPoliza(input);
     setCreating(false);
     invalidate();
+    // Switch straight into edit mode so the user can attach documents
+    // (cotización, contrato, etc.) without an extra click.
+    setEditing(nueva);
   }
 
   async function handleUpdate(input: PolizaInput) {
@@ -164,7 +171,7 @@ export function PolizasView({
                 <td className="px-4 py-2 hidden sm:table-cell">{p.producto}</td>
                 <td className="px-4 py-2 hidden md:table-cell">{p.aseguradora?.nombre ?? "—"}</td>
                 <td className="px-4 py-2">{formatFecha(p.fecha_vencimiento)}</td>
-                <td className="px-4 py-2 hidden sm:table-cell">{formatMonto(p.monto)}</td>
+                <td className="px-4 py-2 hidden sm:table-cell">{formatMonto(p.monto, p.moneda)}</td>
                 <td className="px-4 py-2">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${ESTADO_BADGE[p.estado]}`}
@@ -205,26 +212,34 @@ export function PolizasView({
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title="Editar póliza">
         {editing && (
-          <PolizaForm
-            clientes={clientes}
-            aseguradoras={aseguradoras}
-            propietarios={propietarios}
-            defaultValues={{
-              cliente_id: editing.cliente_id,
-              aseguradora_id: editing.aseguradora_id,
-              producto: editing.producto,
-              numero_poliza: editing.numero_poliza,
-              fecha_emision: editing.fecha_emision,
-              fecha_vencimiento: editing.fecha_vencimiento,
-              monto: editing.monto,
-              plan_pago: editing.plan_pago,
-              estado: editing.estado,
-              propietario_id: editing.propietario_id ?? "",
-            }}
-            onSubmit={handleUpdate}
-            onCancel={() => setEditing(null)}
-            submitLabel="Guardar cambios"
-          />
+          <>
+            <PolizaForm
+              clientes={clientes}
+              aseguradoras={aseguradoras}
+              propietarios={propietarios}
+              defaultValues={{
+                cliente_id: editing.cliente_id,
+                aseguradora_id: editing.aseguradora_id,
+                producto: editing.producto,
+                numero_poliza: editing.numero_poliza,
+                fecha_emision: editing.fecha_emision,
+                fecha_vencimiento: editing.fecha_vencimiento,
+                monto: editing.monto,
+                moneda: editing.moneda,
+                suma_asegurada: editing.suma_asegurada,
+                deducible: editing.deducible,
+                plan_pago: editing.plan_pago,
+                estado: editing.estado,
+                propietario_id: editing.propietario_id ?? "",
+                beneficiarios: editing.beneficiarios ?? "",
+                notas: editing.notas ?? "",
+              }}
+              onSubmit={handleUpdate}
+              onCancel={() => setEditing(null)}
+              submitLabel="Guardar cambios"
+            />
+            <PolizaDocumentos polizaId={editing.id} />
+          </>
         )}
       </Modal>
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { POLIZA_SELECT } from "@/lib/queries/polizas";
 import type { Database } from "@/lib/types/database.types";
 
 const polizaSchema = z.object({
@@ -14,9 +15,14 @@ const polizaSchema = z.object({
   fecha_emision: z.string().min(1, "La fecha de emisión es obligatoria"),
   fecha_vencimiento: z.string().min(1, "La fecha de vencimiento es obligatoria"),
   monto: z.coerce.number().positive("El monto debe ser mayor a 0"),
+  moneda: z.enum(["DOP", "USD"]),
+  suma_asegurada: z.coerce.number().nonnegative().optional().nullable(),
+  deducible: z.coerce.number().nonnegative().optional().nullable(),
   plan_pago: z.enum(["unico", "mensual", "trimestral", "semestral", "anual"]),
   estado: z.enum(["activa", "vencida", "cancelada"]),
   propietario_id: z.string().uuid().optional().or(z.literal("")),
+  beneficiarios: z.string().trim().optional().or(z.literal("")),
+  notas: z.string().trim().optional().or(z.literal("")),
 });
 
 export type PolizaInput = z.infer<typeof polizaSchema>;
@@ -30,9 +36,14 @@ function toInsertValues(parsed: PolizaInput) {
     fecha_emision: parsed.fecha_emision,
     fecha_vencimiento: parsed.fecha_vencimiento,
     monto: parsed.monto,
+    moneda: parsed.moneda,
+    suma_asegurada: parsed.suma_asegurada ?? null,
+    deducible: parsed.deducible ?? null,
     plan_pago: parsed.plan_pago,
     estado: parsed.estado,
     propietario_id: parsed.propietario_id || null,
+    beneficiarios: parsed.beneficiarios || null,
+    notas: parsed.notas || null,
   };
 }
 
@@ -40,11 +51,15 @@ export async function createPoliza(input: PolizaInput) {
   const parsed = polizaSchema.parse(input);
   const supabase = await createClient();
 
-  const { error } = await supabase.from("polizas").insert(
-    omitEmpresaId<Database["public"]["Tables"]["polizas"]["Insert"]>(
-      toInsertValues(parsed)
+  const { data, error } = await supabase
+    .from("polizas")
+    .insert(
+      omitEmpresaId<Database["public"]["Tables"]["polizas"]["Insert"]>(
+        toInsertValues(parsed)
+      )
     )
-  );
+    .select(POLIZA_SELECT)
+    .single();
 
   if (error) {
     if (error.code === "23505") {
@@ -55,6 +70,7 @@ export async function createPoliza(input: PolizaInput) {
   revalidatePath("/polizas");
   revalidatePath("/aseguradoras");
   revalidatePath(`/clientes/${parsed.cliente_id}`);
+  return data;
 }
 
 export async function updatePoliza(id: string, input: PolizaInput) {

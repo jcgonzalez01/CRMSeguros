@@ -217,53 +217,140 @@ export type Database = {
           },
         ]
       }
+      poliza_documentos: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          empresa_id: string
+          id: string
+          nombre_archivo: string
+          poliza_id: string
+          size_bytes: number | null
+          storage_path: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          empresa_id: string
+          id?: string
+          nombre_archivo: string
+          poliza_id: string
+          size_bytes?: number | null
+          storage_path: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          nombre_archivo?: string
+          poliza_id?: string
+          size_bytes?: number | null
+          storage_path?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poliza_documentos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poliza_documentos_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "polizas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poliza_documentos_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "v_polizas_vencen_semana"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poliza_documentos_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "v_polizas_vencidas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poliza_documentos_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       polizas: {
         Row: {
           aseguradora_id: string
+          beneficiarios: string | null
           cliente_id: string
           created_at: string
+          deducible: number | null
           empresa_id: string
           estado: Database["public"]["Enums"]["policy_status"]
           fecha_emision: string
           fecha_vencimiento: string
           id: string
+          moneda: Database["public"]["Enums"]["moneda_poliza"]
           monto: number
+          notas: string | null
           numero_poliza: string
           plan_pago: Database["public"]["Enums"]["payment_plan"]
           producto: string
           propietario_id: string | null
+          suma_asegurada: number | null
           updated_at: string
         }
         Insert: {
           aseguradora_id: string
+          beneficiarios?: string | null
           cliente_id: string
           created_at?: string
+          deducible?: number | null
           empresa_id: string
           estado?: Database["public"]["Enums"]["policy_status"]
           fecha_emision: string
           fecha_vencimiento: string
           id?: string
+          moneda?: Database["public"]["Enums"]["moneda_poliza"]
           monto: number
+          notas?: string | null
           numero_poliza: string
           plan_pago: Database["public"]["Enums"]["payment_plan"]
           producto: string
           propietario_id?: string | null
+          suma_asegurada?: number | null
           updated_at?: string
         }
         Update: {
           aseguradora_id?: string
+          beneficiarios?: string | null
           cliente_id?: string
           created_at?: string
+          deducible?: number | null
           empresa_id?: string
           estado?: Database["public"]["Enums"]["policy_status"]
           fecha_emision?: string
           fecha_vencimiento?: string
           id?: string
+          moneda?: Database["public"]["Enums"]["moneda_poliza"]
           monto?: number
+          notas?: string | null
           numero_poliza?: string
           plan_pago?: Database["public"]["Enums"]["payment_plan"]
           producto?: string
           propietario_id?: string | null
+          suma_asegurada?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -407,6 +494,12 @@ export type Database = {
           id: string | null
           nombre: string | null
           polizas_activas: number | null
+        }
+        Relationships: []
+      }
+      v_monto_ganado: {
+        Row: {
+          monto_ganado: number | null
         }
         Relationships: []
       }
@@ -618,9 +711,9 @@ export type Database = {
           },
         ]
       }
-      v_resumen_financiero: {
+      v_prima_activa_por_moneda: {
         Row: {
-          monto_ganado: number | null
+          moneda: Database["public"]["Enums"]["moneda_poliza"] | null
           prima_total_activa: number | null
         }
         Relationships: []
@@ -749,6 +842,7 @@ export type Database = {
       }
     }
     Enums: {
+      moneda_poliza: "DOP" | "USD"
       opportunity_status: "abierta" | "ganada" | "perdida"
       payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
       policy_status: "activa" | "vencida" | "cancelada"
@@ -884,6 +978,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      moneda_poliza: ["DOP", "USD"],
       opportunity_status: ["abierta", "ganada", "perdida"],
       payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
       policy_status: ["activa", "vencida", "cancelada"],
@@ -899,3 +994,4 @@ export type PaymentPlan = Database["public"]["Enums"]["payment_plan"]
 export type OpportunityStatus = Database["public"]["Enums"]["opportunity_status"]
 export type TaskStatus = Database["public"]["Enums"]["task_status"]
 export type UserRole = Database["public"]["Enums"]["user_role"]
+export type MonedaPoliza = Database["public"]["Enums"]["moneda_poliza"]

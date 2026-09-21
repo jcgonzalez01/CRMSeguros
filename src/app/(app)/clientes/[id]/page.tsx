@@ -2,12 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCliente, getClienteRelated } from "@/lib/queries/clientes";
+import type { MonedaPoliza } from "@/lib/types/database.types";
 
-function formatMonto(monto: number | null) {
+const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
+
+function formatMonto(monto: number | null, moneda: MonedaPoliza = "DOP") {
   if (monto === null) return "—";
-  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
-    monto
-  );
+  return new Intl.NumberFormat(MONEDA_LOCALE[moneda], {
+    style: "currency",
+    currency: moneda,
+  }).format(monto);
 }
 
 function formatFecha(fecha: string | null) {
@@ -77,7 +81,7 @@ export default async function ClienteDetailPage({
                   <td className="px-4 py-2">{p.producto}</td>
                   <td className="px-4 py-2">{p.aseguradora?.nombre ?? "—"}</td>
                   <td className="px-4 py-2">{formatFecha(p.fecha_vencimiento)}</td>
-                  <td className="px-4 py-2">{formatMonto(p.monto)}</td>
+                  <td className="px-4 py-2">{formatMonto(p.monto, p.moneda)}</td>
                   <td className="px-4 py-2 capitalize">{p.estado}</td>
                 </tr>
               ))}

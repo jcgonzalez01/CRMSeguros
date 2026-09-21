@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { useDashboard } from "@/lib/hooks/useDashboard";
 import type { DashboardData } from "@/lib/queries/dashboard";
+import type { MonedaPoliza } from "@/lib/types/database.types";
 import { StatCard } from "./StatCard";
 
-function formatMonto(monto: number | null) {
+const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
+const MONEDA_LABEL: Record<MonedaPoliza, string> = { DOP: "RD$", USD: "US$" };
+
+function formatMonto(monto: number | null, moneda: MonedaPoliza = "DOP") {
   if (monto === null) return "—";
-  return new Intl.NumberFormat("es-DO", { style: "currency", currency: "DOP" }).format(
-    monto
-  );
+  return new Intl.NumberFormat(MONEDA_LOCALE[moneda], {
+    style: "currency",
+    currency: moneda,
+  }).format(monto);
 }
 
 function formatFecha(fecha: string | null) {
@@ -117,14 +122,27 @@ export function DashboardView({ initialData }: { initialData: DashboardData }) {
           value={data.tareasAtrasadas.length}
           tone="danger"
         />
-        <StatCard
-          label="Prima total activa"
-          value={formatMonto(data.resumenFinanciero.prima_total_activa)}
-          tone="success"
-        />
+        {(() => {
+          // moneda is NOT NULL in the DB (group by on a non-null enum
+          // column); the view's generated type is just conservative.
+          const filas = data.primaActivaPorMoneda.filter(
+            (p): p is typeof p & { moneda: MonedaPoliza } => p.moneda !== null
+          );
+          if (filas.length === 0) {
+            return <StatCard label="Prima total activa" value={formatMonto(0)} tone="success" />;
+          }
+          return filas.map((p) => (
+            <StatCard
+              key={p.moneda}
+              label={`Prima total activa (${MONEDA_LABEL[p.moneda]})`}
+              value={formatMonto(p.prima_total_activa, p.moneda)}
+              tone="success"
+            />
+          ));
+        })()}
         <StatCard
           label="Monto ganado"
-          value={formatMonto(data.resumenFinanciero.monto_ganado)}
+          value={formatMonto(data.montoGanado)}
           tone="success"
         />
       </div>

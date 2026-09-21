@@ -10,7 +10,7 @@ export interface PolizasFilter {
   aseguradoraId?: string;
 }
 
-const POLIZA_SELECT =
+export const POLIZA_SELECT =
   "*, cliente:clientes(id, nombre), aseguradora:aseguradoras(id, nombre), propietario:profiles!polizas_propietario_id_fkey(id, full_name)";
 
 export async function listPolizas(supabase: Client, filter: PolizasFilter = {}) {
