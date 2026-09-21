@@ -63,12 +63,45 @@ conectada. También puedes forzar un deploy manual desde su UI.
 
 ## Primer usuario (bootstrap)
 
-La app no tiene registro abierto — solo invitación desde `/equipo`, y para
-invitar ya necesitas estar autenticado. Para el primer usuario:
+La app es multi-empresa: no hay registro abierto, y el primer usuario tiene
+que ser el **Manager** (el rol de plataforma, sin empresa, que crea
+corredoras nuevas desde `/plataforma`). No se puede crear desde el botón
+"Add user" del dashboard de Supabase porque esa UI no permite fijar el
+`user_metadata` (`role: "Manager"`) que el trigger `handle_new_user`
+necesita para no fallar la validación (`Admin` requiere `empresa_id`,
+`Manager` no debe tenerlo).
 
-1. Ve a tu proyecto de Supabase Cloud > **Authentication > Users**.
-2. **Add user** > crea el usuario con correo y contraseña manualmente
-   (marca "Auto Confirm User").
-3. El trigger `handle_new_user` crea su fila en `profiles` automáticamente.
-4. Inicia sesión en la app con esas credenciales. Desde ahí ya puedes
-   invitar al resto del equipo desde `/equipo`.
+Créalo con un script de una sola vez, usando la `service_role` key:
+
+```js
+// bootstrap-manager.mjs — correr una sola vez, luego borrar el archivo
+import { createClient } from "@supabase/supabase-js";
+
+const admin = createClient(
+  "https://tu-proyecto.supabase.co",
+  "tu-service-role-key",
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
+
+const { data, error } = await admin.auth.admin.createUser({
+  email: "tu-correo@dominio.com",
+  password: "una-contraseña-segura",
+  email_confirm: true,
+  user_metadata: { full_name: "Tu Nombre", role: "Manager" },
+});
+
+console.log(error ?? data.user.id);
+```
+
+```bash
+node bootstrap-manager.mjs
+```
+
+Luego:
+1. Inicia sesión con ese correo/contraseña — te redirige a `/plataforma`.
+2. **Nueva empresa** → crea la primera corredora real; te pide el
+   correo/nombre de su primer Admin, a quien se le manda una invitación
+   por correo para crear su contraseña.
+3. Desde ahí, cada corredora administra su propio equipo desde `/equipo`
+   (invitar, restablecer contraseña, bloquear, eliminar) sin volver a
+   tocar la base de datos directamente.
