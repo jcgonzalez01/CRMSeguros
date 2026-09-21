@@ -13,6 +13,11 @@ export function createAdminClient() {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+        // Without this, invite/recovery links redirect with tokens in the
+        // URL hash fragment instead of a `code` query param, which our
+        // server-side /auth/callback route (exchangeCodeForSession) can't
+        // read — the fragment never reaches the server.
+        flowType: "pkce",
       },
     }
   );
