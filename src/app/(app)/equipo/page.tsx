@@ -1,14 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { listEquipoConEstado } from "@/lib/queries/equipo";
 import { EquipoView } from "@/components/equipo/EquipoView";
 
 export default async function EquipoPage() {
   const supabase = await createClient();
-  const { data: miembros, error } = await supabase
-    .from("profiles")
-    .select("id, full_name, email, created_at")
-    .order("full_name");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (error) throw error;
+  const miembros = await listEquipoConEstado(supabase, createAdminClient());
 
-  return <EquipoView miembros={miembros} />;
+  return <EquipoView miembros={miembros} currentUserId={user!.id} />;
 }
