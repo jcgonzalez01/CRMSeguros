@@ -1,280 +1,803 @@
-// Hand-written stub matching supabase/migrations/*.sql, used until the
-// project is linked to a real Supabase instance. Regenerate the accurate
-// version with:
-//   npx supabase gen types typescript --project-id <ref> > src/lib/types/database.types.ts
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-export type PolicyStatus = "activa" | "vencida" | "cancelada";
-export type PaymentPlan =
-  | "unico"
-  | "mensual"
-  | "trimestral"
-  | "semestral"
-  | "anual";
-export type OpportunityStatus = "abierta" | "ganada" | "perdida";
-export type TaskStatus = "pendiente" | "completada";
-
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          full_name: string;
-          email: string;
-          created_at: string;
-        };
-        Insert: {
-          id: string;
-          full_name: string;
-          email: string;
-          created_at?: string;
-        };
-        Update: Partial<{
-          id: string;
-          full_name: string;
-          email: string;
-          created_at: string;
-        }>;
-        Relationships: [];
-      };
-      clientes: {
-        Row: {
-          id: string;
-          nombre: string;
-          telefono: string | null;
-          correo: string | null;
-          notas: string | null;
-          propietario_id: string | null;
-          created_by: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          nombre: string;
-          telefono?: string | null;
-          correo?: string | null;
-          notas?: string | null;
-          propietario_id?: string | null;
-          created_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["clientes"]["Insert"]>;
-        Relationships: [
-          {
-            foreignKeyName: "clientes_propietario_id_fkey";
-            columns: ["propietario_id"];
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "clientes_created_by_fkey";
-            columns: ["created_by"];
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       aseguradoras: {
         Row: {
-          id: string;
-          nombre: string;
-          notas: string | null;
-          created_at: string;
-        };
+          created_at: string
+          id: string
+          nombre: string
+          notas: string | null
+        }
         Insert: {
-          id?: string;
-          nombre: string;
-          notas?: string | null;
-          created_at?: string;
-        };
-        Update: Partial<
-          Database["public"]["Tables"]["aseguradoras"]["Insert"]
-        >;
-        Relationships: [];
-      };
-      polizas: {
+          created_at?: string
+          id?: string
+          nombre: string
+          notas?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
+          notas?: string | null
+        }
+        Relationships: []
+      }
+      clientes: {
         Row: {
-          id: string;
-          cliente_id: string;
-          aseguradora_id: string;
-          producto: string;
-          numero_poliza: string;
-          fecha_emision: string;
-          fecha_vencimiento: string;
-          monto: number;
-          plan_pago: PaymentPlan;
-          estado: PolicyStatus;
-          propietario_id: string | null;
-          created_at: string;
-          updated_at: string;
-        };
+          correo: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          nombre: string
+          notas: string | null
+          propietario_id: string | null
+          telefono: string | null
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          cliente_id: string;
-          aseguradora_id: string;
-          producto: string;
-          numero_poliza: string;
-          fecha_emision: string;
-          fecha_vencimiento: string;
-          monto: number;
-          plan_pago: PaymentPlan;
-          estado?: PolicyStatus;
-          propietario_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["polizas"]["Insert"]>;
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nombre: string
+          notas?: string | null
+          propietario_id?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nombre?: string
+          notas?: string | null
+          propietario_id?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "polizas_cliente_id_fkey";
-            columns: ["cliente_id"];
-            referencedRelation: "clientes";
-            referencedColumns: ["id"];
+            foreignKeyName: "clientes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "polizas_aseguradora_id_fkey";
-            columns: ["aseguradora_id"];
-            referencedRelation: "aseguradoras";
-            referencedColumns: ["id"];
+            foreignKeyName: "clientes_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "polizas_propietario_id_fkey";
-            columns: ["propietario_id"];
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
+        ]
+      }
       oportunidades: {
         Row: {
-          id: string;
-          cliente_id: string;
-          titulo: string;
-          monto_estimado: number | null;
-          estado: OpportunityStatus;
-          propietario_id: string | null;
-          fecha_cierre: string | null;
-          notas: string | null;
-          created_at: string;
-          updated_at: string;
-        };
+          cliente_id: string
+          created_at: string
+          estado: Database["public"]["Enums"]["opportunity_status"]
+          fecha_cierre: string | null
+          id: string
+          monto_estimado: number | null
+          notas: string | null
+          propietario_id: string | null
+          titulo: string
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          cliente_id: string;
-          titulo: string;
-          monto_estimado?: number | null;
-          estado?: OpportunityStatus;
-          propietario_id?: string | null;
-          fecha_cierre?: string | null;
-          notas?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<
-          Database["public"]["Tables"]["oportunidades"]["Insert"]
-        >;
+          cliente_id: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["opportunity_status"]
+          fecha_cierre?: string | null
+          id?: string
+          monto_estimado?: number | null
+          notas?: string | null
+          propietario_id?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["opportunity_status"]
+          fecha_cierre?: string | null
+          id?: string
+          monto_estimado?: number | null
+          notas?: string | null
+          propietario_id?: string | null
+          titulo?: string
+          updated_at?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "oportunidades_cliente_id_fkey";
-            columns: ["cliente_id"];
-            referencedRelation: "clientes";
-            referencedColumns: ["id"];
+            foreignKeyName: "oportunidades_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "oportunidades_propietario_id_fkey";
-            columns: ["propietario_id"];
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
+            foreignKeyName: "oportunidades_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+        ]
+      }
+      polizas: {
+        Row: {
+          aseguradora_id: string
+          cliente_id: string
+          created_at: string
+          estado: Database["public"]["Enums"]["policy_status"]
+          fecha_emision: string
+          fecha_vencimiento: string
+          id: string
+          monto: number
+          numero_poliza: string
+          plan_pago: Database["public"]["Enums"]["payment_plan"]
+          producto: string
+          propietario_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aseguradora_id: string
+          cliente_id: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["policy_status"]
+          fecha_emision: string
+          fecha_vencimiento: string
+          id?: string
+          monto: number
+          numero_poliza: string
+          plan_pago: Database["public"]["Enums"]["payment_plan"]
+          producto: string
+          propietario_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aseguradora_id?: string
+          cliente_id?: string
+          created_at?: string
+          estado?: Database["public"]["Enums"]["policy_status"]
+          fecha_emision?: string
+          fecha_vencimiento?: string
+          id?: string
+          monto?: number
+          numero_poliza?: string
+          plan_pago?: Database["public"]["Enums"]["payment_plan"]
+          producto?: string
+          propietario_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "aseguradoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "v_conteo_polizas_por_aseguradora"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       tareas: {
         Row: {
-          id: string;
-          titulo: string;
-          descripcion: string | null;
-          cliente_id: string | null;
-          asignado_a: string | null;
-          fecha_limite: string;
-          estado: TaskStatus;
-          created_at: string;
-          updated_at: string;
-        };
+          asignado_a: string | null
+          cliente_id: string | null
+          created_at: string
+          descripcion: string | null
+          estado: Database["public"]["Enums"]["task_status"]
+          fecha_limite: string
+          id: string
+          titulo: string
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          titulo: string;
-          descripcion?: string | null;
-          cliente_id?: string | null;
-          asignado_a?: string | null;
-          fecha_limite: string;
-          estado?: TaskStatus;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["tareas"]["Insert"]>;
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"]
+          fecha_limite: string
+          id?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"]
+          fecha_limite?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "tareas_cliente_id_fkey";
-            columns: ["cliente_id"];
-            referencedRelation: "clientes";
-            referencedColumns: ["id"];
+            foreignKeyName: "tareas_asignado_a_fkey"
+            columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "tareas_asignado_a_fkey";
-            columns: ["asignado_a"];
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
+            foreignKeyName: "tareas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
-        ];
-      };
-    };
+        ]
+      }
+    }
     Views: {
-      v_polizas_vencen_semana: {
-        Row: Database["public"]["Tables"]["polizas"]["Row"];
-        Relationships: Database["public"]["Tables"]["polizas"]["Relationships"];
-      };
-      v_polizas_vencidas: {
-        Row: Database["public"]["Tables"]["polizas"]["Row"];
-        Relationships: Database["public"]["Tables"]["polizas"]["Relationships"];
-      };
-      v_tareas_semana: {
-        Row: Database["public"]["Tables"]["tareas"]["Row"];
-        Relationships: Database["public"]["Tables"]["tareas"]["Relationships"];
-      };
-      v_tareas_atrasadas: {
-        Row: Database["public"]["Tables"]["tareas"]["Row"];
-        Relationships: Database["public"]["Tables"]["tareas"]["Relationships"];
-      };
-      v_oportunidades_semana: {
-        Row: Database["public"]["Tables"]["oportunidades"]["Row"];
-        Relationships: Database["public"]["Tables"]["oportunidades"]["Relationships"];
-      };
-      v_resumen_financiero: {
-        Row: {
-          prima_total_activa: number;
-          monto_ganado: number;
-        };
-        Relationships: [];
-      };
       v_conteo_polizas_por_aseguradora: {
         Row: {
-          id: string;
-          nombre: string;
-          polizas_activas: number;
-        };
-        Relationships: [];
-      };
+          id: string | null
+          nombre: string | null
+          polizas_activas: number | null
+        }
+        Relationships: []
+      }
+      v_oportunidades_semana: {
+        Row: {
+          cliente_id: string | null
+          created_at: string | null
+          estado: Database["public"]["Enums"]["opportunity_status"] | null
+          fecha_cierre: string | null
+          id: string | null
+          monto_estimado: number | null
+          notas: string | null
+          propietario_id: string | null
+          titulo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["opportunity_status"] | null
+          fecha_cierre?: string | null
+          id?: string | null
+          monto_estimado?: number | null
+          notas?: string | null
+          propietario_id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["opportunity_status"] | null
+          fecha_cierre?: string | null
+          id?: string | null
+          monto_estimado?: number | null
+          notas?: string | null
+          propietario_id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oportunidades_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oportunidades_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_polizas_vencen_semana: {
+        Row: {
+          aseguradora_id: string | null
+          cliente_id: string | null
+          created_at: string | null
+          estado: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision: string | null
+          fecha_vencimiento: string | null
+          id: string | null
+          monto: number | null
+          numero_poliza: string | null
+          plan_pago: Database["public"]["Enums"]["payment_plan"] | null
+          producto: string | null
+          propietario_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          aseguradora_id?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision?: string | null
+          fecha_vencimiento?: string | null
+          id?: string | null
+          monto?: number | null
+          numero_poliza?: string | null
+          plan_pago?: Database["public"]["Enums"]["payment_plan"] | null
+          producto?: string | null
+          propietario_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          aseguradora_id?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision?: string | null
+          fecha_vencimiento?: string | null
+          id?: string | null
+          monto?: number | null
+          numero_poliza?: string | null
+          plan_pago?: Database["public"]["Enums"]["payment_plan"] | null
+          producto?: string | null
+          propietario_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "aseguradoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "v_conteo_polizas_por_aseguradora"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_polizas_vencidas: {
+        Row: {
+          aseguradora_id: string | null
+          cliente_id: string | null
+          created_at: string | null
+          estado: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision: string | null
+          fecha_vencimiento: string | null
+          id: string | null
+          monto: number | null
+          numero_poliza: string | null
+          plan_pago: Database["public"]["Enums"]["payment_plan"] | null
+          producto: string | null
+          propietario_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          aseguradora_id?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision?: string | null
+          fecha_vencimiento?: string | null
+          id?: string | null
+          monto?: number | null
+          numero_poliza?: string | null
+          plan_pago?: Database["public"]["Enums"]["payment_plan"] | null
+          producto?: string | null
+          propietario_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          aseguradora_id?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["policy_status"] | null
+          fecha_emision?: string | null
+          fecha_vencimiento?: string | null
+          id?: string | null
+          monto?: number | null
+          numero_poliza?: string | null
+          plan_pago?: Database["public"]["Enums"]["payment_plan"] | null
+          producto?: string | null
+          propietario_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "aseguradoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_aseguradora_id_fkey"
+            columns: ["aseguradora_id"]
+            isOneToOne: false
+            referencedRelation: "v_conteo_polizas_por_aseguradora"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_resumen_financiero: {
+        Row: {
+          monto_ganado: number | null
+          prima_total_activa: number | null
+        }
+        Relationships: []
+      }
+      v_tareas_atrasadas: {
+        Row: {
+          asignado_a: string | null
+          cliente_id: string | null
+          created_at: string | null
+          descripcion: string | null
+          estado: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite: string | null
+          id: string | null
+          titulo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite?: string | null
+          id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite?: string | null
+          id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tareas_asignado_a_fkey"
+            columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_tareas_semana: {
+        Row: {
+          asignado_a: string | null
+          cliente_id: string | null
+          created_at: string | null
+          descripcion: string | null
+          estado: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite: string | null
+          id: string | null
+          titulo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite?: string | null
+          id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asignado_a?: string | null
+          cliente_id?: string | null
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["task_status"] | null
+          fecha_limite?: string | null
+          id?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tareas_asignado_a_fkey"
+            columns: ["asignado_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_totales_oportunidades: {
         Row: {
-          estado: OpportunityStatus;
-          cantidad: number;
-          monto_total: number;
-        };
-        Relationships: [];
-      };
-    };
-    Functions: Record<string, never>;
-  };
+          cantidad: number | null
+          estado: Database["public"]["Enums"]["opportunity_status"] | null
+          monto_total: number | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      opportunity_status: "abierta" | "ganada" | "perdida"
+      payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
+      policy_status: "activa" | "vencida" | "cancelada"
+      task_status: "pendiente" | "completada"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {
+      opportunity_status: ["abierta", "ganada", "perdida"],
+      payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
+      policy_status: ["activa", "vencida", "cancelada"],
+      task_status: ["pendiente", "completada"],
+    },
+  },
+} as const
+
+// Convenience aliases used across queries/actions/components.
+export type PolicyStatus = Database["public"]["Enums"]["policy_status"]
+export type PaymentPlan = Database["public"]["Enums"]["payment_plan"]
+export type OpportunityStatus = Database["public"]["Enums"]["opportunity_status"]
+export type TaskStatus = Database["public"]["Enums"]["task_status"]

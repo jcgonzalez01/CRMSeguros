@@ -5,13 +5,15 @@ import { useDashboard } from "@/lib/hooks/useDashboard";
 import type { DashboardData } from "@/lib/queries/dashboard";
 import { StatCard } from "./StatCard";
 
-function formatMonto(monto: number) {
+function formatMonto(monto: number | null) {
+  if (monto === null) return "—";
   return new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(
     monto
   );
 }
 
-function formatFecha(fecha: string) {
+function formatFecha(fecha: string | null) {
+  if (!fecha) return "—";
   return new Intl.DateTimeFormat("es").format(new Date(fecha));
 }
 
