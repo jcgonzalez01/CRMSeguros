@@ -7,8 +7,9 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
   // Lets the dev server serve HMR/fonts to browsers on the LAN, not just
-  // localhost — needed since the app is accessed via 192.168.1.26 here.
-  allowedDevOrigins: ["192.168.1.26"],
+  // localhost — the sandbox's LAN/VPN IP has changed before across
+  // restarts, so both are allowlisted.
+  allowedDevOrigins: ["192.168.1.26", "100.123.107.9"],
 };
 
 export default nextConfig;
