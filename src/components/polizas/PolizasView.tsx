@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePolizas, type PolizaListItem } from "@/lib/hooks/usePolizas";
 import {
@@ -141,6 +142,7 @@ export function PolizasView({
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-4 py-2 text-left font-medium text-gray-500">Número</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Cliente</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Producto</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden md:table-cell">Aseguradora</th>
@@ -153,20 +155,28 @@ export function PolizasView({
           <tbody className="divide-y divide-gray-100">
             {isLoading && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={8} className="px-4 py-6 text-center text-gray-400">
                   Cargando…
                 </td>
               </tr>
             )}
             {!isLoading && polizas?.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={8} className="px-4 py-6 text-center text-gray-400">
                   No se encontraron pólizas.
                 </td>
               </tr>
             )}
             {polizas?.map((p) => (
               <tr key={p.id}>
+                <td className="px-4 py-2">
+                  <Link
+                    href={`/polizas/${p.id}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {p.numero_poliza}
+                  </Link>
+                </td>
                 <td className="px-4 py-2">{p.cliente?.nombre ?? "—"}</td>
                 <td className="px-4 py-2 hidden sm:table-cell">{p.producto}</td>
                 <td className="px-4 py-2 hidden md:table-cell">{p.aseguradora?.nombre ?? "—"}</td>

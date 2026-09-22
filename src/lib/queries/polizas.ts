@@ -35,6 +35,17 @@ export async function listPolizas(supabase: Client, filter: PolizasFilter = {}) 
   return data;
 }
 
+export async function getPoliza(supabase: Client, id: string) {
+  const { data, error } = await supabase
+    .from("polizas")
+    .select(POLIZA_SELECT)
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function listClientesOptions(supabase: Client) {
   const { data, error } = await supabase
     .from("clientes")
