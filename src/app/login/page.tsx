@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,38 +27,35 @@ function BrandMark() {
 
 function BrandPanel() {
   return (
-    <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#12162a] text-white">
-      {/* Decorative background: soft glows + grid, no stock photo needed */}
-      <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-      <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-600/30 blur-3xl" />
-      <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
-
+    <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-b from-white to-blue-50">
       <div className="relative z-10 flex flex-1 flex-col justify-center px-16 py-12">
-        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-xs font-medium text-blue-700">
           Para corredores de seguros
         </span>
-        <h2 className="mt-6 text-3xl font-semibold leading-tight max-w-md">
+        <h2 className="mt-6 text-3xl font-semibold leading-tight max-w-md text-gray-900">
           Todo tu negocio de corredor de seguros, en un solo lugar
         </h2>
-        <p className="mt-4 text-white/60 max-w-sm">
+        <p className="mt-4 text-gray-500 max-w-sm">
           Cualquiera de tu equipo que abra el enlace ve exactamente lo
           mismo, al instante — sin depender del navegador ni del
           dispositivo.
         </p>
 
-        <ul className="mt-10 space-y-4 max-w-sm">
+        <Image
+          src="/login-illustration.jpg"
+          alt=""
+          width={1680}
+          height={945}
+          priority
+          className="mt-8 w-full max-w-xl rounded-xl"
+        />
+
+        <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 max-w-xl">
           {FEATURES.map((feature) => (
-            <li key={feature} className="flex items-start gap-3">
+            <li key={feature} className="flex items-start gap-2.5">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 shrink-0 text-blue-400 mt-0.5"
+                className="h-4 w-4 shrink-0 text-blue-600 mt-0.5"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={2}
@@ -69,7 +67,7 @@ function BrandPanel() {
                   d="M4.5 12.75l6 6 9-13.5"
                 />
               </svg>
-              <span className="text-sm text-white/80">{feature}</span>
+              <span className="text-sm text-gray-600">{feature}</span>
             </li>
           ))}
         </ul>
