@@ -897,7 +897,7 @@ export type Database = {
       payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
       policy_status: "activa" | "vencida" | "cancelada"
       task_status: "pendiente" | "completada"
-      user_role: "Admin" | "Manager"
+      user_role: "Admin" | "Manager" | "Gerente" | "Corredor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1034,7 +1034,7 @@ export const Constants = {
       payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
       policy_status: ["activa", "vencida", "cancelada"],
       task_status: ["pendiente", "completada"],
-      user_role: ["Admin", "Manager"],
+      user_role: ["Admin", "Manager", "Gerente", "Corredor"],
     },
   },
 } as const

@@ -10,7 +10,11 @@ export function InviteForm({
   onSubmit: (input: InviteInput) => Promise<void>;
   onCancel: () => void;
 }) {
-  const [form, setForm] = useState<InviteInput>({ email: "", fullName: "" });
+  const [form, setForm] = useState<InviteInput>({
+    email: "",
+    fullName: "",
+    role: "Corredor",
+  });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,6 +73,26 @@ export function InviteForm({
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Rol *</label>
+        <select
+          value={form.role}
+          onChange={(e) =>
+            setForm({ ...form, role: e.target.value as InviteInput["role"] })
+          }
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="Corredor">Corredor</option>
+          <option value="Gerente">Gerente</option>
+          <option value="Admin">Admin</option>
+        </select>
+        <p className="text-xs text-gray-400 mt-1">
+          Corredor: ve solo sus propias oportunidades, tareas y pólizas.
+          Admin y Gerente ven y asignan todo; solo Admin gestiona el
+          equipo.
+        </p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

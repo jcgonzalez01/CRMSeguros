@@ -11,7 +11,7 @@ type Client = SupabaseClient<Database>;
 export async function listEquipoConEstado(supabase: Client, admin: Client) {
   const { data: miembros, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, created_at")
+    .select("id, full_name, email, created_at, role")
     .order("full_name");
   if (error) throw error;
 

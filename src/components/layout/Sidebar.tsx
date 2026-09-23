@@ -118,7 +118,10 @@ function NavLinks({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const items = role === "Manager" ? MANAGER_NAV_ITEMS : NAV_ITEMS;
+  const items =
+    role === "Manager"
+      ? MANAGER_NAV_ITEMS
+      : NAV_ITEMS.filter((item) => item.href !== "/equipo" || role === "Admin");
 
   return (
     <nav className="flex flex-col gap-0.5">

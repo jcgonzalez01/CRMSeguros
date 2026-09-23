@@ -7,11 +7,13 @@ import {
   inviteTeamMember,
   resetTeamMemberPassword,
   setTeamMemberBloqueado,
+  setTeamMemberRole,
   type InviteInput,
 } from "@/lib/actions/equipo";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InviteForm } from "./InviteForm";
+import type { UserRole } from "@/lib/types/database.types";
 
 export interface Miembro {
   id: string;
@@ -19,6 +21,7 @@ export interface Miembro {
   email: string;
   created_at: string;
   bloqueado: boolean;
+  role: UserRole;
 }
 
 function formatFecha(fecha: string) {
@@ -55,6 +58,22 @@ export function EquipoView({
       setError({
         id: m.id,
         texto: err instanceof Error ? err.message : "No se pudo enviar el correo",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleChangeRole(m: Miembro, role: UserRole) {
+    setActionLoading(m.id);
+    setError(null);
+    try {
+      await setTeamMemberRole(m.id, role);
+      router.refresh();
+    } catch (err) {
+      setError({
+        id: m.id,
+        texto: err instanceof Error ? err.message : "No se pudo cambiar el rol",
       });
     } finally {
       setActionLoading(null);
@@ -139,11 +158,16 @@ export function EquipoView({
                   </p>
                   <p className="text-sm text-gray-500">{m.email}</p>
                 </div>
-                {m.bloqueado && (
-                  <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-                    Bloqueado
+                <div className="flex flex-col items-end gap-1">
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                    {m.role}
                   </span>
-                )}
+                  {m.bloqueado && (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                      Bloqueado
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-gray-400 mt-2">
                 En el equipo desde {formatFecha(m.created_at)}
@@ -154,6 +178,24 @@ export function EquipoView({
               )}
               {error?.id === m.id && (
                 <p className="text-xs text-red-600 mt-2">{error.texto}</p>
+              )}
+
+              {!esUnoMismo && (
+                <div className="mt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    Rol
+                  </label>
+                  <select
+                    value={m.role}
+                    onChange={(e) => handleChangeRole(m, e.target.value as UserRole)}
+                    disabled={cargando}
+                    className="w-full rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Admin">Admin</option>
+                    <option value="Gerente">Gerente</option>
+                    <option value="Corredor">Corredor</option>
+                  </select>
+                </div>
               )}
 
               {!esUnoMismo && (
