@@ -14,6 +14,31 @@ const FEATURES = [
   "Datos compartidos en tiempo real con todo tu equipo",
 ];
 
+function KaiSoftMark() {
+  return (
+    <div className="flex items-center gap-1.5 text-xs">
+      <span className="text-gray-400">Desarrollado por</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 28 14"
+        className="h-3.5 w-7 text-[#1c3f6e]"
+        fill="none"
+      >
+        <path
+          d="M2 13V9C2 4.58 7.16 1 14 1s12 3.58 12 8v4"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="font-semibold">
+        <span className="text-gray-700">KAI</span>{" "}
+        <span className="text-blue-600">SOFT</span>
+      </span>
+    </div>
+  );
+}
+
 function BrandMark() {
   return (
     <div className="flex items-center gap-2">
@@ -128,7 +153,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-1 min-h-screen">
-      <div className="flex w-full lg:w-1/2 items-center justify-center px-6 py-12 bg-white">
+      <div className="relative flex w-full lg:w-1/2 items-center justify-center px-6 py-12 bg-white">
         <div className="w-full max-w-sm">
           <div className="mb-10">
             <BrandMark />
@@ -269,6 +294,10 @@ export default function LoginPage() {
               </button>
             </>
           )}
+        </div>
+
+        <div className="absolute bottom-6 inset-x-0 flex justify-center">
+          <KaiSoftMark />
         </div>
       </div>
 
