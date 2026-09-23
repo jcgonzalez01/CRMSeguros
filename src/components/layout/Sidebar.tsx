@@ -98,6 +98,17 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: "/reportes",
+    label: "Reportes",
+    icon: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22M4.5 4.5v15h15"
+      />
+    ),
+  },
+  {
     href: "/equipo",
     label: "Equipo",
     icon: (
