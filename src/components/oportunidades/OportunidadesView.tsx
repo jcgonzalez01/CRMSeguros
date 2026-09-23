@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  useOportunidades,
-  useTotalesOportunidades,
-  type OportunidadListItem,
-} from "@/lib/hooks/useOportunidades";
+import { useOportunidades, type OportunidadListItem } from "@/lib/hooks/useOportunidades";
 import {
   createOportunidad,
   deleteOportunidad,
@@ -14,7 +10,6 @@ import {
   type OportunidadInput,
 } from "@/lib/actions/oportunidades";
 import type { OpportunityStatus } from "@/lib/types/database.types";
-import type { getTotalesOportunidades } from "@/lib/queries/oportunidades";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OportunidadForm } from "./OportunidadForm";
@@ -39,19 +34,31 @@ const ESTADO_LABELS: Record<OpportunityStatus, string> = {
   perdida: "Perdida",
 };
 
+const MES_LABELS = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+// Closed deals (ganada/perdida) are tracked by when they closed; a still-
+// open one has no fecha_cierre yet, so it's tracked by when it entered
+// the pipeline — either way, every opportunity lands in exactly one month.
+function fechaEfectiva(o: OportunidadListItem): Date {
+  return new Date((o.fecha_cierre ?? o.created_at).slice(0, 10) + "T00:00:00");
+}
+
 export function OportunidadesView({
   initialOportunidades,
-  initialTotales,
   clientes,
   propietarios,
 }: {
   initialOportunidades: OportunidadListItem[];
-  initialTotales: Awaited<ReturnType<typeof getTotalesOportunidades>>;
   clientes: Option[];
   propietarios: Option[];
 }) {
   const [search, setSearch] = useState("");
   const [estado, setEstado] = useState<OpportunityStatus | "">("");
+  const [año, setAño] = useState<number | "">("");
+  const [mes, setMes] = useState<number | "">("");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<OportunidadListItem | null>(null);
   const [deleting, setDeleting] = useState<OportunidadListItem | null>(null);
@@ -63,11 +70,36 @@ export function OportunidadesView({
     filter,
     initialOportunidades
   );
-  const { data: totales } = useTotalesOportunidades(initialTotales);
+
+  const añosDisponibles = useMemo(() => {
+    const años = new Set(
+      (oportunidades ?? []).map((o) => fechaEfectiva(o).getFullYear())
+    );
+    años.add(new Date().getFullYear());
+    return Array.from(años).sort((a, b) => b - a);
+  }, [oportunidades]);
+
+  const oportunidadesFiltradas = useMemo(() => {
+    if (!oportunidades) return oportunidades;
+    return oportunidades.filter((o) => {
+      const fecha = fechaEfectiva(o);
+      if (año !== "" && fecha.getFullYear() !== año) return false;
+      if (mes !== "" && fecha.getMonth() + 1 !== mes) return false;
+      return true;
+    });
+  }, [oportunidades, año, mes]);
+
+  const totales = useMemo(() => {
+    const porEstado = { abierta: { cantidad: 0, monto: 0 }, ganada: { cantidad: 0, monto: 0 }, perdida: { cantidad: 0, monto: 0 } };
+    for (const o of oportunidadesFiltradas ?? []) {
+      porEstado[o.estado].cantidad += 1;
+      porEstado[o.estado].monto += o.monto_estimado ?? 0;
+    }
+    return porEstado;
+  }, [oportunidadesFiltradas]);
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ["oportunidades"] });
-    queryClient.invalidateQueries({ queryKey: ["oportunidades-totales"] });
   }
 
   async function handleCreate(input: OportunidadInput) {
@@ -108,18 +140,13 @@ export function OportunidadesView({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        {(["abierta", "ganada", "perdida"] as const).map((key) => {
-          const totalRow = totales?.find((t) => t.estado === key);
-          return (
-            <div key={key} className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
-              <p className="text-sm text-gray-500">{ESTADO_LABELS[key]}</p>
-              <p className="text-xl font-semibold">{totalRow?.cantidad ?? 0}</p>
-              <p className="text-sm text-gray-500">
-                {formatMonto(totalRow?.monto_total ?? 0)}
-              </p>
-            </div>
-          );
-        })}
+        {(["abierta", "ganada", "perdida"] as const).map((key) => (
+          <div key={key} className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+            <p className="text-sm text-gray-500">{ESTADO_LABELS[key]}</p>
+            <p className="text-xl font-semibold">{totales[key].cantidad}</p>
+            <p className="text-sm text-gray-500">{formatMonto(totales[key].monto)}</p>
+          </div>
+        ))}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -138,6 +165,30 @@ export function OportunidadesView({
           <option value="abierta">Abierta</option>
           <option value="ganada">Ganada</option>
           <option value="perdida">Perdida</option>
+        </select>
+        <select
+          value={mes}
+          onChange={(e) => setMes(e.target.value ? Number(e.target.value) : "")}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Todos los meses</option>
+          {MES_LABELS.map((label, i) => (
+            <option key={label} value={i + 1}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={año}
+          onChange={(e) => setAño(e.target.value ? Number(e.target.value) : "")}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Todos los años</option>
+          {añosDisponibles.map((a) => (
+            <option key={a} value={a}>
+              {a}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -161,14 +212,14 @@ export function OportunidadesView({
                 </td>
               </tr>
             )}
-            {!isLoading && oportunidades?.length === 0 && (
+            {!isLoading && oportunidadesFiltradas?.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
                   No se encontraron oportunidades.
                 </td>
               </tr>
             )}
-            {oportunidades?.map((o) => (
+            {oportunidadesFiltradas?.map((o) => (
               <tr key={o.id}>
                 <td className="px-4 py-2">{o.titulo}</td>
                 <td className="px-4 py-2 hidden sm:table-cell">{o.cliente?.nombre ?? "—"}</td>

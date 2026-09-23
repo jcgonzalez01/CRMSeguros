@@ -33,11 +33,3 @@ export async function listOportunidades(
   if (error) throw error;
   return data;
 }
-
-export async function getTotalesOportunidades(supabase: Client) {
-  const { data, error } = await supabase
-    .from("v_totales_oportunidades")
-    .select("*");
-  if (error) throw error;
-  return data;
-}

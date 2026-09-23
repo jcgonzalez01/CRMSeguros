@@ -2,11 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import {
-  listOportunidades,
-  getTotalesOportunidades,
-  type OportunidadesFilter,
-} from "@/lib/queries/oportunidades";
+import { listOportunidades, type OportunidadesFilter } from "@/lib/queries/oportunidades";
 import { useRealtimeTable } from "./useRealtimeTable";
 
 export type OportunidadListItem = Awaited<
@@ -25,17 +21,5 @@ export function useOportunidades(
     queryKey: ["oportunidades", filter],
     queryFn: () => listOportunidades(createClient(), filter),
     initialData: isDefaultFilter ? initialData : undefined,
-  });
-}
-
-export function useTotalesOportunidades(
-  initialData?: Awaited<ReturnType<typeof getTotalesOportunidades>>
-) {
-  useRealtimeTable("oportunidades", ["oportunidades-totales"]);
-
-  return useQuery({
-    queryKey: ["oportunidades-totales"],
-    queryFn: () => getTotalesOportunidades(createClient()),
-    initialData,
   });
 }
