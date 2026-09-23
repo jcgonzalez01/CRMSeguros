@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { listPolizasParaTendencias } from "@/lib/queries/reportes";
+import { getReporteMensual } from "@/lib/queries/reportes";
+import { listPolizasComision } from "@/lib/queries/comisiones";
+import { listProfiles } from "@/lib/queries/clientes";
 import { ReportesView } from "@/components/reportes/ReportesView";
 
 const MESES_INICIAL = 12;
@@ -7,12 +9,18 @@ const MESES_INICIAL = 12;
 export default async function ReportesPage() {
   const supabase = await createClient();
 
-  const now = new Date();
-  const desde = new Date(now.getFullYear(), now.getMonth() - (MESES_INICIAL - 1), 1)
-    .toISOString()
-    .slice(0, 10);
+  const [reporte, polizasComision, propietarios] = await Promise.all([
+    getReporteMensual(supabase, MESES_INICIAL),
+    listPolizasComision(supabase),
+    listProfiles(supabase),
+  ]);
 
-  const polizas = await listPolizasParaTendencias(supabase, desde);
-
-  return <ReportesView initialPolizas={polizas} initialMeses={MESES_INICIAL} />;
+  return (
+    <ReportesView
+      initialReporte={reporte}
+      initialMeses={MESES_INICIAL}
+      initialPolizasComision={polizasComision}
+      propietarios={propietarios}
+    />
+  );
 }

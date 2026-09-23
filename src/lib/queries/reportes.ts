@@ -3,16 +3,10 @@ import type { Database } from "@/lib/types/database.types";
 
 type Client = SupabaseClient<Database>;
 
-// Raw rows for the selected window — aggregated into monthly buckets by
-// the caller (ReportesView), not here, so the same fetch can drive both
-// the count and premium trend charts without two round trips.
-export async function listPolizasParaTendencias(supabase: Client, desde: string) {
-  const { data, error } = await supabase
-    .from("polizas")
-    .select("fecha_emision, monto, moneda")
-    .gte("fecha_emision", desde)
-    .order("fecha_emision");
-
+// One row per month, already aggregated in Postgres (reporte_mensual,
+// see migration 0015) — no raw rows fetched, no client-side grouping.
+export async function getReporteMensual(supabase: Client, meses: number) {
+  const { data, error } = await supabase.rpc("reporte_mensual", { meses });
   if (error) throw error;
   return data;
 }

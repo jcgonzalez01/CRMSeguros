@@ -870,6 +870,21 @@ export type Database = {
         Returns: Database["public"]["Enums"]["user_role"]
       }
       provisionar_empresa: { Args: { p_nombre: string }; Returns: string }
+      reporte_mensual: {
+        Args: { meses?: number }
+        Returns: {
+          clientes_nuevos: number
+          mes: string
+          monto_ganado: number
+          oportunidades_ganadas: number
+          oportunidades_perdidas: number
+          polizas_vendidas: number
+          primas_dop: number
+          primas_usd: number
+          tareas_completadas: number
+          tareas_totales: number
+        }[]
+      }
       sembrar_aseguradoras_default: {
         Args: { p_empresa: string }
         Returns: undefined
