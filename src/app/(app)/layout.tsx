@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getEmpresaLogoUrl } from "@/lib/queries/empresa";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SignOutButton } from "@/components/layout/SignOutButton";
 
@@ -27,6 +28,15 @@ export default async function AppLayout({
     .from("permisos_modulo")
     .select("role, modulo, nivel");
 
+  // Vacío para Manager (sin empresa_id, la RLS de empresa_perfil no
+  // matchea ninguna fila) — cae naturalmente al fallback genérico.
+  const { data: perfil } = await supabase
+    .from("empresa_perfil")
+    .select("nombre_comercial, logo_path")
+    .maybeSingle();
+
+  const logoUrl = getEmpresaLogoUrl(supabase, perfil?.logo_path ?? null);
+
   const displayName = profile?.full_name ?? user.email ?? "";
   const initials = displayName
     .split(" ")
@@ -41,7 +51,12 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-1 flex-col md:flex-row bg-gray-50">
-      <Sidebar role={profile?.role ?? "Admin"} permisos={permisos ?? []} />
+      <Sidebar
+        role={profile?.role ?? "Admin"}
+        permisos={permisos ?? []}
+        logoUrl={logoUrl}
+        nombreComercial={perfil?.nombre_comercial}
+      />
       <div className="flex flex-1 flex-col min-w-0">
         <header className="hidden md:flex items-center justify-end gap-3 border-b border-gray-200 bg-white px-6 py-3">
           {isAdmin && profile?.empresa?.nombre && (

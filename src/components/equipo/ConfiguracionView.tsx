@@ -14,6 +14,8 @@ import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InviteForm } from "./InviteForm";
 import { PermisosPanel, type PermisoModuloRow } from "./PermisosPanel";
+import { EmpresaPanel } from "./EmpresaPanel";
+import type { EmpresaPerfil } from "@/lib/queries/empresa";
 import type { UserRole } from "@/lib/types/database.types";
 
 export interface Miembro {
@@ -29,16 +31,20 @@ function formatFecha(fecha: string) {
   return new Intl.DateTimeFormat("es").format(new Date(fecha));
 }
 
-export function EquipoView({
+export function ConfiguracionView({
   miembros,
   currentUserId,
   permisos,
+  perfil,
+  logoUrl,
 }: {
   miembros: Miembro[];
   currentUserId: string;
   permisos: PermisoModuloRow[];
+  perfil: EmpresaPerfil | null;
+  logoUrl: string | null;
 }) {
-  const [tab, setTab] = useState<"miembros" | "permisos">("miembros");
+  const [tab, setTab] = useState<"miembros" | "permisos" | "empresa">("miembros");
   const [inviting, setInviting] = useState(false);
   const [blocking, setBlocking] = useState<Miembro | null>(null);
   const [deleting, setDeleting] = useState<Miembro | null>(null);
@@ -139,7 +145,7 @@ export function EquipoView({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Equipo</h1>
+        <h1 className="text-2xl font-semibold">Configuración</h1>
         {tab === "miembros" && (
           <button
             onClick={() => setInviting(true)}
@@ -155,6 +161,7 @@ export function EquipoView({
           [
             { key: "miembros", label: "Miembros" },
             { key: "permisos", label: "Permisos" },
+            { key: "empresa", label: "Empresa" },
           ] as const
         ).map((t) => (
           <button
@@ -172,6 +179,8 @@ export function EquipoView({
       </div>
 
       {tab === "permisos" && <PermisosPanel permisos={permisos} />}
+
+      {tab === "empresa" && <EmpresaPanel perfil={perfil} logoUrl={logoUrl} />}
 
       {tab === "miembros" && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

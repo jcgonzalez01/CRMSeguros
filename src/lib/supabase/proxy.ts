@@ -57,7 +57,7 @@ export async function updateSession(request: NextRequest) {
   // Route by role: Manager is platform-only (manages empresas, never sees
   // a tenant's business data). Admin, Gerente and Corredor are all scoped
   // to their own empresa and never see the platform area; only Admin
-  // manages the team (/equipo).
+  // manages the team + company settings (/configuracion).
   if (data?.claims && !isPublicPath) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -66,7 +66,7 @@ export async function updateSession(request: NextRequest) {
       .single();
 
     const isPlatformPath = request.nextUrl.pathname.startsWith("/plataforma");
-    const isEquipoPath = request.nextUrl.pathname.startsWith("/equipo");
+    const isConfiguracionPath = request.nextUrl.pathname.startsWith("/configuracion");
 
     if (profile?.role === "Manager" && !isPlatformPath) {
       const url = request.nextUrl.clone();
@@ -78,7 +78,7 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
-    if (profile?.role !== "Admin" && isEquipoPath) {
+    if (profile?.role !== "Admin" && isConfiguracionPath) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);

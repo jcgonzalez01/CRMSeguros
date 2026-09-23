@@ -132,6 +132,50 @@ export type Database = {
           },
         ]
       }
+      empresa_perfil: {
+        Row: {
+          correo: string | null
+          direccion: string | null
+          empresa_id: string
+          logo_path: string | null
+          nombre_comercial: string | null
+          rnc: string | null
+          sitio_web: string | null
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          correo?: string | null
+          direccion?: string | null
+          empresa_id: string
+          logo_path?: string | null
+          nombre_comercial?: string | null
+          rnc?: string | null
+          sitio_web?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          correo?: string | null
+          direccion?: string | null
+          empresa_id?: string
+          logo_path?: string | null
+          nombre_comercial?: string | null
+          rnc?: string | null
+          sitio_web?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_perfil_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: true
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           activa: boolean
@@ -924,6 +968,10 @@ export type Database = {
         }[]
       }
       sembrar_aseguradoras_default: {
+        Args: { p_empresa: string }
+        Returns: undefined
+      }
+      sembrar_perfil_empresa_default: {
         Args: { p_empresa: string }
         Returns: undefined
       }

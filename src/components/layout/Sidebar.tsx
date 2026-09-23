@@ -110,8 +110,8 @@ const NAV_ITEMS: {
     ),
   },
   {
-    href: "/equipo",
-    label: "Equipo",
+    href: "/configuracion",
+    label: "Configuración",
     icon: (
       <path
         strokeLinecap="round"
@@ -138,7 +138,7 @@ function NavLinks({
     role === "Manager"
       ? MANAGER_NAV_ITEMS
       : NAV_ITEMS.filter((item) => {
-          if (item.href === "/equipo") return role === "Admin";
+          if (item.href === "/configuracion") return role === "Admin";
           if (!item.module) return true; // Dashboard: siempre visible
           if (role === "Admin") return true; // Admin nunca consulta la matriz
           const permiso = permisos.find(
@@ -180,13 +180,35 @@ function NavLinks({
   );
 }
 
-function BrandMark() {
+function BrandMark({
+  logoUrl,
+  nombreComercial,
+  compact = false,
+}: {
+  logoUrl?: string | null;
+  nombreComercial?: string | null;
+  compact?: boolean;
+}) {
+  const boxSize = compact ? "h-7 w-7" : "h-8 w-8";
   return (
-    <div className="flex items-center gap-2 px-2 pb-6">
-      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-sm font-bold text-white">
-        CS
-      </div>
-      <span className="text-lg font-semibold text-gray-900">CRM Seguros</span>
+    <div className={`flex items-center gap-2 ${compact ? "" : "px-2 pb-6"}`}>
+      {logoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={logoUrl}
+          alt={nombreComercial ?? "Logo"}
+          className={`${boxSize} rounded-md object-contain`}
+        />
+      ) : (
+        <div
+          className={`flex ${boxSize} items-center justify-center rounded-md bg-blue-600 font-bold text-white ${compact ? "text-xs" : "text-sm"}`}
+        >
+          CS
+        </div>
+      )}
+      <span className={`${compact ? "text-base" : "text-lg"} font-semibold text-gray-900`}>
+        {nombreComercial || "CRM Seguros"}
+      </span>
     </div>
   );
 }
@@ -194,9 +216,13 @@ function BrandMark() {
 export function Sidebar({
   role,
   permisos = [],
+  logoUrl,
+  nombreComercial,
 }: {
   role: UserRole;
   permisos?: PermisoRow[];
+  logoUrl?: string | null;
+  nombreComercial?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -204,18 +230,13 @@ export function Sidebar({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:border-r md:border-gray-200 md:bg-white md:px-3 md:py-5">
-        <BrandMark />
+        <BrandMark logoUrl={logoUrl} nombreComercial={nombreComercial} />
         <NavLinks role={role} permisos={permisos} />
       </aside>
 
       {/* Mobile top bar + drawer */}
       <div className="md:hidden flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
-            CS
-          </div>
-          <span className="text-base font-semibold">CRM Seguros</span>
-        </div>
+        <BrandMark logoUrl={logoUrl} nombreComercial={nombreComercial} compact />
         <button
           onClick={() => setOpen(true)}
           aria-label="Abrir menú"
@@ -246,12 +267,7 @@ export function Sidebar({
           />
           <div className="relative z-10 w-64 bg-white px-3 py-4 shadow-xl">
             <div className="flex items-center justify-between px-2 pb-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
-                  CS
-                </div>
-                <span className="text-base font-semibold">CRM Seguros</span>
-              </div>
+              <BrandMark logoUrl={logoUrl} nombreComercial={nombreComercial} compact />
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Cerrar menú"
