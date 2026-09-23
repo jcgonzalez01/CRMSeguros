@@ -50,10 +50,12 @@ export function OportunidadesView({
   initialOportunidades,
   clientes,
   propietarios,
+  puedeEditar,
 }: {
   initialOportunidades: OportunidadListItem[];
   clientes: Option[];
   propietarios: Option[];
+  puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [estado, setEstado] = useState<OpportunityStatus | "">("");
@@ -131,12 +133,14 @@ export function OportunidadesView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Oportunidades</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Nueva oportunidad
-        </button>
+        {puedeEditar && (
+          <button
+            onClick={() => setCreating(true)}
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Nueva oportunidad
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -235,18 +239,22 @@ export function OportunidadesView({
                   </span>
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => setEditing(o)}
-                    className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => setDeleting(o)}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Eliminar
-                  </button>
+                  {puedeEditar && (
+                    <>
+                      <button
+                        onClick={() => setEditing(o)}
+                        className="text-sm text-gray-600 hover:text-gray-900 mr-3"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => setDeleting(o)}
+                        className="text-sm text-red-600 hover:text-red-800"
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

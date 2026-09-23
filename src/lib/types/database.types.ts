@@ -217,6 +217,44 @@ export type Database = {
           },
         ]
       }
+      permisos_modulo: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          id: string
+          modulo: string
+          nivel: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          id?: string
+          modulo: string
+          nivel: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          modulo?: string
+          nivel?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permisos_modulo_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poliza_documentos: {
         Row: {
           content_type: string | null
@@ -886,6 +924,10 @@ export type Database = {
         }[]
       }
       sembrar_aseguradoras_default: {
+        Args: { p_empresa: string }
+        Returns: undefined
+      }
+      sembrar_permisos_default: {
         Args: { p_empresa: string }
         Returns: undefined
       }

@@ -67,11 +67,13 @@ export function PolizaDetailView({
   clientes,
   aseguradoras,
   propietarios,
+  puedeEditar,
 }: {
   poliza: Poliza;
   clientes: Option[];
   aseguradoras: Option[];
   propietarios: Option[];
+  puedeEditar: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -120,24 +122,28 @@ export function PolizaDetailView({
             >
               {ESTADO_LABELS[poliza.estado]}
             </span>
-            <button
-              onClick={() => setRenewing(true)}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              Renovar
-            </button>
-            <button
-              onClick={() => setEditing(true)}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => setDeleting(true)}
-              className="text-sm text-red-600 hover:text-red-800"
-            >
-              Eliminar
-            </button>
+            {puedeEditar && (
+              <>
+                <button
+                  onClick={() => setRenewing(true)}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Renovar
+                </button>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setDeleting(true)}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
+                  Eliminar
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

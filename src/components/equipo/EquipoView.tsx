@@ -13,6 +13,7 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InviteForm } from "./InviteForm";
+import { PermisosPanel, type PermisoModuloRow } from "./PermisosPanel";
 import type { UserRole } from "@/lib/types/database.types";
 
 export interface Miembro {
@@ -31,10 +32,13 @@ function formatFecha(fecha: string) {
 export function EquipoView({
   miembros,
   currentUserId,
+  permisos,
 }: {
   miembros: Miembro[];
   currentUserId: string;
+  permisos: PermisoModuloRow[];
 }) {
+  const [tab, setTab] = useState<"miembros" | "permisos">("miembros");
   const [inviting, setInviting] = useState(false);
   const [blocking, setBlocking] = useState<Miembro | null>(null);
   const [deleting, setDeleting] = useState<Miembro | null>(null);
@@ -136,14 +140,40 @@ export function EquipoView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Equipo</h1>
-        <button
-          onClick={() => setInviting(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Invitar miembro
-        </button>
+        {tab === "miembros" && (
+          <button
+            onClick={() => setInviting(true)}
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Invitar miembro
+          </button>
+        )}
       </div>
 
+      <div className="flex gap-1 mb-6 border-b border-gray-200">
+        {(
+          [
+            { key: "miembros", label: "Miembros" },
+            { key: "permisos", label: "Permisos" },
+          ] as const
+        ).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+              tab === t.key
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "permisos" && <PermisosPanel permisos={permisos} />}
+
+      {tab === "miembros" && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {miembros.map((m) => {
           const esUnoMismo = m.id === currentUserId;
@@ -237,6 +267,7 @@ export function EquipoView({
           );
         })}
       </div>
+      )}
 
       <Modal open={inviting} onClose={() => setInviting(false)} title="Invitar miembro">
         <InviteForm onSubmit={handleInvite} onCancel={() => setInviting(false)} />

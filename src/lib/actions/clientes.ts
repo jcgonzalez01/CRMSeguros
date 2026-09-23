@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
 const clienteSchema = z.object({
@@ -24,6 +25,7 @@ export type ClienteInput = z.infer<typeof clienteSchema>;
 export async function createCliente(input: ClienteInput) {
   const parsed = clienteSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "clientes");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,6 +48,7 @@ export async function createCliente(input: ClienteInput) {
 export async function updateCliente(id: string, input: ClienteInput) {
   const parsed = clienteSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "clientes");
 
   const { error } = await supabase
     .from("clientes")
@@ -65,6 +68,7 @@ export async function updateCliente(id: string, input: ClienteInput) {
 
 export async function deleteCliente(id: string) {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "clientes");
   const { error } = await supabase.from("clientes").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/clientes");

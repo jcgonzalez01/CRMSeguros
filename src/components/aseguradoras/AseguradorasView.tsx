@@ -18,8 +18,10 @@ import { AseguradoraForm } from "./AseguradoraForm";
 
 export function AseguradorasView({
   initialAseguradoras,
+  puedeEditar,
 }: {
   initialAseguradoras: AseguradoraListItem[];
+  puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
@@ -71,12 +73,14 @@ export function AseguradorasView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Aseguradoras</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Nueva aseguradora
-        </button>
+        {puedeEditar && (
+          <button
+            onClick={() => setCreating(true)}
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Nueva aseguradora
+          </button>
+        )}
       </div>
 
       <input
@@ -115,18 +119,22 @@ export function AseguradorasView({
                 <td className="px-4 py-2 font-medium">{a.nombre}</td>
                 <td className="px-4 py-2">{a.polizas_activas}</td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => setEditing(a)}
-                    className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => setDeleting(a)}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Eliminar
-                  </button>
+                  {puedeEditar && (
+                    <>
+                      <button
+                        onClick={() => setEditing(a)}
+                        className="text-sm text-gray-600 hover:text-gray-900 mr-3"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => setDeleting(a)}
+                        className="text-sm text-red-600 hover:text-red-800"
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

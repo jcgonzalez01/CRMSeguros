@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
 import { POLIZA_SELECT } from "@/lib/queries/polizas";
+import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
 const polizaSchema = z.object({
@@ -57,6 +58,7 @@ function toInsertValues(parsed: PolizaInput) {
 export async function createPoliza(input: PolizaInput) {
   const parsed = polizaSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "polizas");
 
   const { data, error } = await supabase
     .from("polizas")
@@ -83,6 +85,7 @@ export async function createPoliza(input: PolizaInput) {
 export async function updatePoliza(id: string, input: PolizaInput) {
   const parsed = polizaSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "polizas");
 
   const { error } = await supabase
     .from("polizas")
@@ -102,6 +105,7 @@ export async function updatePoliza(id: string, input: PolizaInput) {
 
 export async function deletePoliza(id: string, clienteId: string) {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "polizas");
   const { error } = await supabase.from("polizas").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/polizas");

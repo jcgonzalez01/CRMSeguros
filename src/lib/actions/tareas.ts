@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
 const tareaSchema = z.object({
@@ -31,6 +32,7 @@ function toValues(parsed: TareaInput) {
 export async function createTarea(input: TareaInput) {
   const parsed = tareaSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "tareas");
 
   const { error } = await supabase.from("tareas").insert(
     omitEmpresaId<Database["public"]["Tables"]["tareas"]["Insert"]>(
@@ -46,6 +48,7 @@ export async function createTarea(input: TareaInput) {
 export async function updateTarea(id: string, input: TareaInput) {
   const parsed = tareaSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "tareas");
 
   const { error } = await supabase
     .from("tareas")
@@ -59,6 +62,7 @@ export async function updateTarea(id: string, input: TareaInput) {
 
 export async function setTareaEstado(id: string, estado: "pendiente" | "completada") {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "tareas");
   const { error } = await supabase
     .from("tareas")
     .update({ estado })
@@ -70,6 +74,7 @@ export async function setTareaEstado(id: string, estado: "pendiente" | "completa
 
 export async function deleteTarea(id: string, clienteId: string | null) {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "tareas");
   const { error } = await supabase.from("tareas").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/tareas");

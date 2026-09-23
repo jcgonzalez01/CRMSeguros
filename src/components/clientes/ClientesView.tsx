@@ -13,9 +13,11 @@ import { ClienteForm, type ProfileOption } from "./ClienteForm";
 export function ClientesView({
   initialClientes,
   profiles,
+  puedeEditar,
 }: {
   initialClientes: ClienteListItem[];
   profiles: ProfileOption[];
+  puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [propietarioId, setPropietarioId] = useState("");
@@ -57,12 +59,14 @@ export function ClientesView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Clientes</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Nuevo cliente
-        </button>
+        {puedeEditar && (
+          <button
+            onClick={() => setCreating(true)}
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Nuevo cliente
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -128,18 +132,22 @@ export function ClientesView({
                   {cliente.propietario?.full_name ?? "—"}
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => setEditing(cliente)}
-                    className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => setDeleting(cliente)}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Eliminar
-                  </button>
+                  {puedeEditar && (
+                    <>
+                      <button
+                        onClick={() => setEditing(cliente)}
+                        className="text-sm text-gray-600 hover:text-gray-900 mr-3"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => setDeleting(cliente)}
+                        className="text-sm text-red-600 hover:text-red-800"
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

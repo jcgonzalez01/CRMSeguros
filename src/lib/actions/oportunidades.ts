@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
 const oportunidadSchema = z.object({
@@ -36,6 +37,7 @@ function toValues(parsed: OportunidadInput) {
 export async function createOportunidad(input: OportunidadInput) {
   const parsed = oportunidadSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "oportunidades");
 
   const { error } = await supabase
     .from("oportunidades")
@@ -53,6 +55,7 @@ export async function createOportunidad(input: OportunidadInput) {
 export async function updateOportunidad(id: string, input: OportunidadInput) {
   const parsed = oportunidadSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "oportunidades");
 
   // Only stamp fecha_cierre on the actual abierta -> ganada/perdida
   // transition, not on every subsequent edit, so the dashboard's "de la
@@ -80,6 +83,7 @@ export async function updateOportunidad(id: string, input: OportunidadInput) {
 
 export async function deleteOportunidad(id: string, clienteId: string) {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "oportunidades");
   const { error } = await supabase.from("oportunidades").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/oportunidades");

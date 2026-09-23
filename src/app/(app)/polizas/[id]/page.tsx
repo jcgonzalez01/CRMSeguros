@@ -6,6 +6,7 @@ import {
   listClientesOptions,
 } from "@/lib/queries/polizas";
 import { listProfiles } from "@/lib/queries/clientes";
+import { getAccesoModulo } from "@/lib/permisos/server";
 import { PolizaDetailView } from "@/components/polizas/PolizaDetailView";
 
 export default async function PolizaDetailPage({
@@ -23,10 +24,11 @@ export default async function PolizaDetailPage({
     notFound();
   }
 
-  const [clientes, aseguradoras, propietarios] = await Promise.all([
+  const [clientes, aseguradoras, propietarios, nivel] = await Promise.all([
     listClientesOptions(supabase),
     listAseguradorasOptions(supabase),
     listProfiles(supabase),
+    getAccesoModulo(supabase, "polizas"),
   ]);
 
   return (
@@ -35,6 +37,7 @@ export default async function PolizaDetailPage({
       clientes={clientes}
       aseguradoras={aseguradoras}
       propietarios={propietarios}
+      puedeEditar={nivel === "editar"}
     />
   );
 }

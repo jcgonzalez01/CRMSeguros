@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { UserRole } from "@/lib/types/database.types";
+import type { ModuloKey } from "@/lib/permisos/server";
 
 const MANAGER_NAV_ITEMS = [
   {
@@ -19,7 +20,12 @@ const MANAGER_NAV_ITEMS = [
   },
 ];
 
-const NAV_ITEMS = [
+const NAV_ITEMS: {
+  href: string;
+  label: string;
+  module?: ModuloKey;
+  icon: React.ReactNode;
+}[] = [
   {
     href: "/dashboard",
     label: "Dashboard",
@@ -34,6 +40,7 @@ const NAV_ITEMS = [
   {
     href: "/clientes",
     label: "Clientes",
+    module: "clientes",
     icon: (
       <path
         strokeLinecap="round"
@@ -45,6 +52,7 @@ const NAV_ITEMS = [
   {
     href: "/polizas",
     label: "Pólizas",
+    module: "polizas",
     icon: (
       <path
         strokeLinecap="round"
@@ -56,6 +64,7 @@ const NAV_ITEMS = [
   {
     href: "/aseguradoras",
     label: "Aseguradoras",
+    module: "aseguradoras",
     icon: (
       <path
         strokeLinecap="round"
@@ -67,6 +76,7 @@ const NAV_ITEMS = [
   {
     href: "/oportunidades",
     label: "Oportunidades",
+    module: "oportunidades",
     icon: (
       <path
         strokeLinecap="round"
@@ -78,6 +88,7 @@ const NAV_ITEMS = [
   {
     href: "/tareas",
     label: "Tareas",
+    module: "tareas",
     icon: (
       <path
         strokeLinecap="round"
@@ -89,6 +100,7 @@ const NAV_ITEMS = [
   {
     href: "/reportes",
     label: "Reportes",
+    module: "reportes",
     icon: (
       <path
         strokeLinecap="round"
@@ -110,18 +122,30 @@ const NAV_ITEMS = [
   },
 ];
 
+type PermisoRow = { role: string; modulo: string; nivel: string };
+
 function NavLinks({
   role,
+  permisos,
   onNavigate,
 }: {
   role: UserRole;
+  permisos: PermisoRow[];
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
   const items =
     role === "Manager"
       ? MANAGER_NAV_ITEMS
-      : NAV_ITEMS.filter((item) => item.href !== "/equipo" || role === "Admin");
+      : NAV_ITEMS.filter((item) => {
+          if (item.href === "/equipo") return role === "Admin";
+          if (!item.module) return true; // Dashboard: siempre visible
+          if (role === "Admin") return true; // Admin nunca consulta la matriz
+          const permiso = permisos.find(
+            (p) => p.role === role && p.modulo === item.module
+          );
+          return (permiso?.nivel ?? "bloqueado") !== "bloqueado";
+        });
 
   return (
     <nav className="flex flex-col gap-0.5">
@@ -167,7 +191,13 @@ function BrandMark() {
   );
 }
 
-export function Sidebar({ role }: { role: UserRole }) {
+export function Sidebar({
+  role,
+  permisos = [],
+}: {
+  role: UserRole;
+  permisos?: PermisoRow[];
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -175,7 +205,7 @@ export function Sidebar({ role }: { role: UserRole }) {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:border-r md:border-gray-200 md:bg-white md:px-3 md:py-5">
         <BrandMark />
-        <NavLinks role={role} />
+        <NavLinks role={role} permisos={permisos} />
       </aside>
 
       {/* Mobile top bar + drawer */}
@@ -230,7 +260,7 @@ export function Sidebar({ role }: { role: UserRole }) {
                 ✕
               </button>
             </div>
-            <NavLinks role={role} onNavigate={() => setOpen(false)} />
+            <NavLinks role={role} permisos={permisos} onNavigate={() => setOpen(false)} />
           </div>
         </div>
       )}

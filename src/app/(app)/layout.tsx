@@ -23,6 +23,10 @@ export default async function AppLayout({
     .eq("id", user.id)
     .single();
 
+  const { data: permisos } = await supabase
+    .from("permisos_modulo")
+    .select("role, modulo, nivel");
+
   const displayName = profile?.full_name ?? user.email ?? "";
   const initials = displayName
     .split(" ")
@@ -37,7 +41,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-1 flex-col md:flex-row bg-gray-50">
-      <Sidebar role={profile?.role ?? "Admin"} />
+      <Sidebar role={profile?.role ?? "Admin"} permisos={permisos ?? []} />
       <div className="flex flex-1 flex-col min-w-0">
         <header className="hidden md:flex items-center justify-end gap-3 border-b border-gray-200 bg-white px-6 py-3">
           {isAdmin && profile?.empresa?.nombre && (

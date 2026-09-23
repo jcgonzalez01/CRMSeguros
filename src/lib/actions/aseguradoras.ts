@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
 const aseguradoraSchema = z.object({
@@ -16,6 +17,7 @@ export type AseguradoraInput = z.infer<typeof aseguradoraSchema>;
 export async function createAseguradora(input: AseguradoraInput) {
   const parsed = aseguradoraSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "aseguradoras");
 
   const { error } = await supabase.from("aseguradoras").insert(
     omitEmpresaId<Database["public"]["Tables"]["aseguradoras"]["Insert"]>({
@@ -31,6 +33,7 @@ export async function createAseguradora(input: AseguradoraInput) {
 export async function updateAseguradora(id: string, input: AseguradoraInput) {
   const parsed = aseguradoraSchema.parse(input);
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "aseguradoras");
 
   const { error } = await supabase
     .from("aseguradoras")
@@ -43,6 +46,7 @@ export async function updateAseguradora(id: string, input: AseguradoraInput) {
 
 export async function deleteAseguradora(id: string) {
   const supabase = await createClient();
+  await assertPuedeEditar(supabase, "aseguradoras");
   const { error } = await supabase.from("aseguradoras").delete().eq("id", id);
   if (error) {
     if (error.code === "23503") {

@@ -29,10 +29,12 @@ export function TareasView({
   initialTareas,
   clientes,
   miembros,
+  puedeEditar,
 }: {
   initialTareas: TareaListItem[];
   clientes: Option[];
   miembros: Option[];
+  puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [estado, setEstado] = useState<TaskStatus | "">("");
@@ -89,12 +91,14 @@ export function TareasView({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Tareas</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Nueva tarea
-        </button>
+        {puedeEditar && (
+          <button
+            onClick={() => setCreating(true)}
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Nueva tarea
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -161,7 +165,8 @@ export function TareasView({
                     type="checkbox"
                     checked={t.estado === "completada"}
                     onChange={() => handleToggle(t)}
-                    className="h-4 w-4 rounded border-gray-300"
+                    disabled={!puedeEditar}
+                    className="h-4 w-4 rounded border-gray-300 disabled:opacity-50"
                   />
                 </td>
                 <td className={`px-4 py-2 ${t.estado === "completada" ? "line-through" : ""}`}>
@@ -175,18 +180,22 @@ export function TareasView({
                   {formatFecha(t.fecha_limite)}
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => setEditing(t)}
-                    className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => setDeleting(t)}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Eliminar
-                  </button>
+                  {puedeEditar && (
+                    <>
+                      <button
+                        onClick={() => setEditing(t)}
+                        className="text-sm text-gray-600 hover:text-gray-900 mr-3"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => setDeleting(t)}
+                        className="text-sm text-red-600 hover:text-red-800"
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
