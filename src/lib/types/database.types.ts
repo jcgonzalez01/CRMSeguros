@@ -445,6 +445,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id: string
+          poliza_id: string | null
           titulo: string
           updated_at: string
         }
@@ -457,6 +458,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id?: string
+          poliza_id?: string | null
           titulo: string
           updated_at?: string
         }
@@ -469,6 +471,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite?: string
           id?: string
+          poliza_id?: string | null
           titulo?: string
           updated_at?: string
         }
@@ -492,6 +495,27 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "polizas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "v_polizas_vencen_semana"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_poliza_id_fkey"
+            columns: ["poliza_id"]
+            isOneToOne: false
+            referencedRelation: "v_polizas_vencidas"
             referencedColumns: ["id"]
           },
         ]
@@ -839,6 +863,7 @@ export type Database = {
       }
     }
     Functions: {
+      crear_tareas_renovacion: { Args: never; Returns: undefined }
       current_user_empresa_id: { Args: never; Returns: string }
       current_user_role: {
         Args: never

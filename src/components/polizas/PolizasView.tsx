@@ -7,9 +7,11 @@ import { usePolizas, type PolizaListItem } from "@/lib/hooks/usePolizas";
 import {
   createPoliza,
   deletePoliza,
+  renovarPoliza,
   updatePoliza,
   type PolizaInput,
 } from "@/lib/actions/polizas";
+import { calcularRenovacion } from "@/lib/polizas/renovar";
 import type { MonedaPoliza, PolicyStatus } from "@/lib/types/database.types";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -53,6 +55,7 @@ export function PolizasView({
   const [editing, setEditing] = useState<PolizaListItem | null>(null);
   const [deleting, setDeleting] = useState<PolizaListItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [renewingFrom, setRenewingFrom] = useState<PolizaListItem | null>(null);
 
   const queryClient = useQueryClient();
   const filter = {
@@ -93,6 +96,17 @@ export function PolizasView({
     } finally {
       setDeleteLoading(false);
     }
+  }
+
+  async function handleRenovar(input: PolizaInput) {
+    if (!renewingFrom) return;
+    const nueva = await renovarPoliza(renewingFrom.id, input);
+    setRenewingFrom(null);
+    invalidate();
+    queryClient.invalidateQueries({ queryKey: ["tareas"] });
+    // Same as a fresh "Nueva póliza": go straight to edit mode so
+    // documents can be attached right away.
+    setEditing(nueva);
   }
 
   return (
@@ -191,6 +205,12 @@ export function PolizasView({
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   <button
+                    onClick={() => setRenewingFrom(p)}
+                    className="text-sm text-blue-600 hover:text-blue-800 mr-3"
+                  >
+                    Renovar
+                  </button>
+                  <button
                     onClick={() => setEditing(p)}
                     className="text-sm text-gray-600 hover:text-gray-900 mr-3"
                   >
@@ -252,6 +272,24 @@ export function PolizasView({
             />
             <PolizaDocumentos polizaId={editing.id} />
           </>
+        )}
+      </Modal>
+
+      <Modal
+        open={!!renewingFrom}
+        onClose={() => setRenewingFrom(null)}
+        title={`Renovar póliza ${renewingFrom?.numero_poliza ?? ""}`}
+      >
+        {renewingFrom && (
+          <PolizaForm
+            clientes={clientes}
+            aseguradoras={aseguradoras}
+            propietarios={propietarios}
+            defaultValues={calcularRenovacion(renewingFrom)}
+            onSubmit={handleRenovar}
+            onCancel={() => setRenewingFrom(null)}
+            submitLabel="Crear póliza renovada"
+          />
         )}
       </Modal>
 

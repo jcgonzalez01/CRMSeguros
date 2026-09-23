@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   deletePoliza,
+  renovarPoliza,
   updatePoliza,
   type PolizaInput,
 } from "@/lib/actions/polizas";
+import { calcularRenovacion } from "@/lib/polizas/renovar";
 import type { MonedaPoliza, PolicyStatus } from "@/lib/types/database.types";
 import type { getPoliza } from "@/lib/queries/polizas";
 import { Modal } from "@/components/ui/Modal";
@@ -74,12 +76,19 @@ export function PolizaDetailView({
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [renewing, setRenewing] = useState(false);
   const router = useRouter();
 
   async function handleUpdate(input: PolizaInput) {
     await updatePoliza(poliza.id, input);
     setEditing(false);
     router.refresh();
+  }
+
+  async function handleRenovar(input: PolizaInput) {
+    const nueva = await renovarPoliza(poliza.id, input);
+    setRenewing(false);
+    router.push(`/polizas/${nueva.id}`);
   }
 
   async function handleDelete() {
@@ -111,6 +120,12 @@ export function PolizaDetailView({
             >
               {ESTADO_LABELS[poliza.estado]}
             </span>
+            <button
+              onClick={() => setRenewing(true)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Renovar
+            </button>
             <button
               onClick={() => setEditing(true)}
               className="text-sm text-gray-600 hover:text-gray-900"
@@ -203,6 +218,22 @@ export function PolizaDetailView({
           onSubmit={handleUpdate}
           onCancel={() => setEditing(false)}
           submitLabel="Guardar cambios"
+        />
+      </Modal>
+
+      <Modal
+        open={renewing}
+        onClose={() => setRenewing(false)}
+        title={`Renovar póliza ${poliza.numero_poliza}`}
+      >
+        <PolizaForm
+          clientes={clientes}
+          aseguradoras={aseguradoras}
+          propietarios={propietarios}
+          defaultValues={calcularRenovacion(poliza)}
+          onSubmit={handleRenovar}
+          onCancel={() => setRenewing(false)}
+          submitLabel="Crear póliza renovada"
         />
       </Modal>
 

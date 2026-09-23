@@ -108,3 +108,21 @@ export async function deletePoliza(id: string, clienteId: string) {
   revalidatePath("/aseguradoras");
   revalidatePath(`/clientes/${clienteId}`);
 }
+
+// Creates the renewed póliza, then closes out any pending renewal task
+// linked to the old one — closing the loop between the automated
+// reminder (crear_tareas_renovacion, see migration 0014) and this manual
+// action, so a renewed policy doesn't leave a stale "Renovar" task behind.
+export async function renovarPoliza(polizaAnteriorId: string, input: PolizaInput) {
+  const nueva = await createPoliza(input);
+
+  const supabase = await createClient();
+  await supabase
+    .from("tareas")
+    .update({ estado: "completada" })
+    .eq("poliza_id", polizaAnteriorId)
+    .eq("estado", "pendiente");
+
+  revalidatePath("/tareas");
+  return nueva;
+}
