@@ -120,9 +120,14 @@ export async function deletePoliza(id: string, clienteId: string) {
 // reminder (crear_tareas_renovacion, see migration 0014) and this manual
 // action, so a renewed policy doesn't leave a stale "Renovar" task behind.
 export async function renovarPoliza(polizaAnteriorId: string, input: PolizaInput) {
+  // Se valida ANTES de crear la póliza nueva: si el usuario no tiene
+  // permiso para tocar tareas, la renovación falla completa (sin dejar
+  // una póliza nueva creada pero la tarea vieja sin cerrar).
+  const supabase = await createClient();
+  await assertPuedeEditar(supabase, "tareas");
+
   const nueva = await createPoliza(input);
 
-  const supabase = await createClient();
   await supabase
     .from("tareas")
     .update({ estado: "completada" })

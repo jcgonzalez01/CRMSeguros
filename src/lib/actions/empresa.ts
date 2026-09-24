@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
+import { assertAdmin } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -25,12 +26,12 @@ export type EmpresaPerfilInput = z.infer<typeof empresaPerfilSchema>;
 export async function guardarEmpresaPerfil(input: EmpresaPerfilInput) {
   const parsed = empresaPerfilSchema.parse(input);
   const supabase = await createClient();
+  await assertAdmin(supabase);
 
-  // Sin chequeo manual de rol: la RLS de empresa_perfil (0020) ya exige
-  // Admin de la propia empresa para INSERT/UPDATE — mismo patrón que
-  // guardarPermisoModulo. No incluye logo_path: el upsert de supabase-js
-  // solo pisa las columnas presentes en el payload, así que esto nunca
-  // borra el logo ya guardado.
+  // La RLS de empresa_perfil (0020) también exige Admin de la propia
+  // empresa para INSERT/UPDATE — assertAdmin es la segunda barrera. No
+  // incluye logo_path: el upsert de supabase-js solo pisa las columnas
+  // presentes en el payload, así que esto nunca borra el logo ya guardado.
   const { error } = await supabase.from("empresa_perfil").upsert(
     omitEmpresaId<Database["public"]["Tables"]["empresa_perfil"]["Insert"]>({
       nombre_comercial: parsed.nombre_comercial || null,
@@ -78,6 +79,7 @@ export async function subirLogoEmpresa(formData: FormData) {
   }
 
   const supabase = await createClient();
+  await assertAdmin(supabase);
   const empresaId = await getCurrentEmpresaId(supabase);
 
   // Ruta fija por empresa (un único logo, se sobrescribe con upsert): así
@@ -109,6 +111,7 @@ export async function subirLogoEmpresa(formData: FormData) {
 
 export async function eliminarLogoEmpresa() {
   const supabase = await createClient();
+  await assertAdmin(supabase);
   const empresaId = await getCurrentEmpresaId(supabase);
   const path = `${empresaId}/logo`;
 

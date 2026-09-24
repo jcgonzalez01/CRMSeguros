@@ -55,3 +55,25 @@ export async function assertPuedeEditar(supabase: Client, modulo: ModuloKey) {
     throw new Error(`No tienes permiso para editar en el módulo "${modulo}".`);
   }
 }
+
+// Defensa en profundidad para acciones que ya dependen de RLS exigiendo
+// Admin (permisos_modulo, empresa_perfil) — si esa policy alguna vez
+// tuviera un descuido, esta segunda barrera en la capa de aplicación
+// sigue rechazando al resto de los roles.
+export async function assertAdmin(supabase: Client) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado.");
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (error) throw error;
+
+  if (profile.role !== "Admin") {
+    throw new Error("Solo un Admin puede hacer esto.");
+  }
+}

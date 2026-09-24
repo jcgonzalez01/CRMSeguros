@@ -603,6 +603,24 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          clave: string
+          intentos: number
+          ventana_inicio: string
+        }
+        Insert: {
+          clave: string
+          intentos?: number
+          ventana_inicio?: string
+        }
+        Update: {
+          clave?: string
+          intentos?: number
+          ventana_inicio?: string
+        }
+        Relationships: []
+      }
       tareas: {
         Row: {
           asignado_a: string | null
@@ -1081,6 +1099,14 @@ export type Database = {
       sembrar_permisos_default: {
         Args: { p_empresa: string }
         Returns: undefined
+      }
+      verificar_rate_limit: {
+        Args: {
+          p_clave: string
+          p_max_intentos: number
+          p_ventana_segundos: number
+        }
+        Returns: boolean
       }
     }
     Enums: {

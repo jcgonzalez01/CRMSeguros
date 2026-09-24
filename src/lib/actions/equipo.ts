@@ -55,6 +55,27 @@ async function getTargetProfileOrThrow(
   return target;
 }
 
+// Cooldown simple respaldado en Postgres (ver migración 0027) para que
+// un Admin (o una sesión comprometida) no pueda hacer spam de invites o
+// resets sin fricción — no es un límite estricto de seguridad, es una
+// mitigación de abuso barata.
+async function assertRateLimit(
+  supabase: SupabaseClient<Database>,
+  clave: string,
+  maxIntentos: number,
+  ventanaSegundos: number
+) {
+  const { data: permitido, error } = await supabase.rpc("verificar_rate_limit", {
+    p_clave: clave,
+    p_max_intentos: maxIntentos,
+    p_ventana_segundos: ventanaSegundos,
+  });
+  if (error) throw new Error(error.message);
+  if (!permitido) {
+    throw new Error("Demasiados intentos. Espera unos minutos e intenta de nuevo.");
+  }
+}
+
 // Solo Admin gestiona el equipo, así que el único bloqueo real es
 // quedarse sin ningún Admin — perder al último Gerente o Corredor no
 // deja a la empresa sin quien la administre.
@@ -81,11 +102,12 @@ export async function inviteTeamMember(input: InviteInput) {
   const parsed = inviteSchema.parse(input);
 
   const supabase = await createClient();
-  const { empresaId, role: callerRole } = await getCallerContext(supabase);
+  const { userId, empresaId, role: callerRole } = await getCallerContext(supabase);
 
   if (callerRole !== "Admin") {
     throw new Error("Solo un Admin puede invitar miembros.");
   }
+  await assertRateLimit(supabase, `invite:${userId}`, 10, 600);
 
   const admin = createAdminClient();
   const requestHeaders = await headers();
@@ -106,7 +128,8 @@ export async function inviteTeamMember(input: InviteInput) {
 
 export async function resetTeamMemberPassword(userId: string) {
   const supabase = await createClient();
-  const { empresaId } = await getCallerContext(supabase);
+  const { userId: callerId, empresaId } = await getCallerContext(supabase);
+  await assertRateLimit(supabase, `reset:${callerId}`, 10, 600);
 
   const admin = createAdminClient();
   await getTargetProfileOrThrow(admin, empresaId, userId);
