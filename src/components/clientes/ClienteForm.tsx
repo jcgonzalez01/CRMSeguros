@@ -8,6 +8,16 @@ export interface ProfileOption {
   full_name: string;
 }
 
+const SEXO_LABELS: Record<string, string> = { M: "Masculino", F: "Femenino" };
+
+const ESTADO_CIVIL_LABELS: Record<string, string> = {
+  soltero: "Soltero/a",
+  casado: "Casado/a",
+  divorciado: "Divorciado/a",
+  viudo: "Viudo/a",
+  union_libre: "Unión libre",
+};
+
 export function ClienteForm({
   defaultValues,
   profiles,
@@ -25,6 +35,12 @@ export function ClienteForm({
     nombre: defaultValues?.nombre ?? "",
     telefono: defaultValues?.telefono ?? "",
     correo: defaultValues?.correo ?? "",
+    cedula: defaultValues?.cedula ?? "",
+    fecha_nacimiento: defaultValues?.fecha_nacimiento ?? "",
+    direccion: defaultValues?.direccion ?? "",
+    sexo: defaultValues?.sexo ?? "",
+    estado_civil: defaultValues?.estado_civil ?? "",
+    ocupacion: defaultValues?.ocupacion ?? "",
     notas: defaultValues?.notas ?? "",
     propietario_id: defaultValues?.propietario_id ?? "",
   });
@@ -71,6 +87,83 @@ export function ClienteForm({
             type="email"
             value={form.correo}
             onChange={(e) => setForm({ ...form, correo: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Cédula/RNC</label>
+          <input
+            value={form.cedula}
+            onChange={(e) => setForm({ ...form, cedula: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Fecha de nacimiento</label>
+          <input
+            type="date"
+            value={form.fecha_nacimiento}
+            onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Dirección</label>
+        <input
+          value={form.direccion}
+          onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Sexo</label>
+          <select
+            value={form.sexo}
+            onChange={(e) =>
+              setForm({ ...form, sexo: e.target.value as ClienteInput["sexo"] })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Sin especificar</option>
+            {Object.entries(SEXO_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Estado civil</label>
+          <select
+            value={form.estado_civil}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                estado_civil: e.target.value as ClienteInput["estado_civil"],
+              })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Sin especificar</option>
+            {Object.entries(ESTADO_CIVIL_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Ocupación</label>
+          <input
+            value={form.ocupacion}
+            onChange={(e) => setForm({ ...form, ocupacion: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

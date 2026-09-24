@@ -172,6 +172,12 @@ export function ClientesView({
               nombre: editing.nombre,
               telefono: editing.telefono ?? "",
               correo: editing.correo ?? "",
+              cedula: editing.cedula ?? "",
+              fecha_nacimiento: editing.fecha_nacimiento ?? "",
+              direccion: editing.direccion ?? "",
+              sexo: (editing.sexo as ClienteInput["sexo"]) ?? "",
+              estado_civil: (editing.estado_civil as ClienteInput["estado_civil"]) ?? "",
+              ocupacion: editing.ocupacion ?? "",
               notas: editing.notas ?? "",
               propietario_id: editing.propietario_id ?? "",
             }}

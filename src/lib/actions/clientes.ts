@@ -16,6 +16,15 @@ const clienteSchema = z.object({
     .email("Correo inválido")
     .optional()
     .or(z.literal("")),
+  cedula: z.string().trim().optional().or(z.literal("")),
+  fecha_nacimiento: z.string().optional().or(z.literal("")),
+  direccion: z.string().trim().optional().or(z.literal("")),
+  sexo: z.enum(["M", "F"]).optional().or(z.literal("")),
+  estado_civil: z
+    .enum(["soltero", "casado", "divorciado", "viudo", "union_libre"])
+    .optional()
+    .or(z.literal("")),
+  ocupacion: z.string().trim().optional().or(z.literal("")),
   notas: z.string().trim().optional().or(z.literal("")),
   propietario_id: z.string().uuid().optional().or(z.literal("")),
 });
@@ -35,6 +44,12 @@ export async function createCliente(input: ClienteInput) {
       nombre: parsed.nombre,
       telefono: parsed.telefono || null,
       correo: parsed.correo || null,
+      cedula: parsed.cedula || null,
+      fecha_nacimiento: parsed.fecha_nacimiento || null,
+      direccion: parsed.direccion || null,
+      sexo: parsed.sexo || null,
+      estado_civil: parsed.estado_civil || null,
+      ocupacion: parsed.ocupacion || null,
       notas: parsed.notas || null,
       propietario_id: parsed.propietario_id || null,
       created_by: user?.id ?? null,
@@ -56,6 +71,12 @@ export async function updateCliente(id: string, input: ClienteInput) {
       nombre: parsed.nombre,
       telefono: parsed.telefono || null,
       correo: parsed.correo || null,
+      cedula: parsed.cedula || null,
+      fecha_nacimiento: parsed.fecha_nacimiento || null,
+      direccion: parsed.direccion || null,
+      sexo: parsed.sexo || null,
+      estado_civil: parsed.estado_civil || null,
+      ocupacion: parsed.ocupacion || null,
       notas: parsed.notas || null,
       propietario_id: parsed.propietario_id || null,
     })

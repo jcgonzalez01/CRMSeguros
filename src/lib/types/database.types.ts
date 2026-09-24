@@ -73,38 +73,56 @@ export type Database = {
       }
       clientes: {
         Row: {
+          cedula: string | null
           correo: string | null
           created_at: string
           created_by: string | null
+          direccion: string | null
           empresa_id: string
+          estado_civil: string | null
+          fecha_nacimiento: string | null
           id: string
           nombre: string
           notas: string | null
+          ocupacion: string | null
           propietario_id: string | null
+          sexo: string | null
           telefono: string | null
           updated_at: string
         }
         Insert: {
+          cedula?: string | null
           correo?: string | null
           created_at?: string
           created_by?: string | null
+          direccion?: string | null
           empresa_id: string
+          estado_civil?: string | null
+          fecha_nacimiento?: string | null
           id?: string
           nombre: string
           notas?: string | null
+          ocupacion?: string | null
           propietario_id?: string | null
+          sexo?: string | null
           telefono?: string | null
           updated_at?: string
         }
         Update: {
+          cedula?: string | null
           correo?: string | null
           created_at?: string
           created_by?: string | null
+          direccion?: string | null
           empresa_id?: string
+          estado_civil?: string | null
+          fecha_nacimiento?: string | null
           id?: string
           nombre?: string
           notas?: string | null
+          ocupacion?: string | null
           propietario_id?: string | null
+          sexo?: string | null
           telefono?: string | null
           updated_at?: string
         }

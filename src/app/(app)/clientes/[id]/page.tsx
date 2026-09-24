@@ -6,6 +6,25 @@ import type { MonedaPoliza } from "@/lib/types/database.types";
 
 const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
 
+const SEXO_LABELS: Record<string, string> = { M: "Masculino", F: "Femenino" };
+
+const ESTADO_CIVIL_LABELS: Record<string, string> = {
+  soltero: "Soltero/a",
+  casado: "Casado/a",
+  divorciado: "Divorciado/a",
+  viudo: "Viudo/a",
+  union_libre: "Unión libre",
+};
+
+function Campo({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-sm font-medium text-gray-900">{children}</p>
+    </div>
+  );
+}
+
 function formatMonto(monto: number | null, moneda: MonedaPoliza = "DOP") {
   if (monto === null) return "—";
   return new Intl.NumberFormat(MONEDA_LOCALE[moneda], {
@@ -54,6 +73,21 @@ export default async function ClienteDetailPage({
           <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">{cliente.notas}</p>
         )}
       </div>
+
+      <section className="rounded-lg border border-gray-200 bg-white shadow-sm p-5 grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <Campo label="Cédula/RNC">{cliente.cedula ?? "—"}</Campo>
+        <Campo label="Fecha de nacimiento">{formatFecha(cliente.fecha_nacimiento)}</Campo>
+        <Campo label="Dirección">{cliente.direccion ?? "—"}</Campo>
+        <Campo label="Sexo">
+          {cliente.sexo ? (SEXO_LABELS[cliente.sexo] ?? cliente.sexo) : "—"}
+        </Campo>
+        <Campo label="Estado civil">
+          {cliente.estado_civil
+            ? (ESTADO_CIVIL_LABELS[cliente.estado_civil] ?? cliente.estado_civil)
+            : "—"}
+        </Campo>
+        <Campo label="Ocupación">{cliente.ocupacion ?? "—"}</Campo>
+      </section>
 
       <section>
         <h2 className="text-lg font-semibold mb-2">Pólizas</h2>
