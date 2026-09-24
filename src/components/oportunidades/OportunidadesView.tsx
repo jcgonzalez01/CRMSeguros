@@ -37,6 +37,14 @@ const ESTADO_LABELS: Record<OpportunityStatus, string> = {
   perdida: "Perdida",
 };
 
+const MOTIVO_PERDIDA_LABELS: Record<string, string> = {
+  precio: "Precio",
+  competencia: "Competencia",
+  no_responde: "No responde",
+  cambio_necesidad: "Cambió de necesidad",
+  otro: "Otro",
+};
+
 const MES_LABELS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
@@ -261,6 +269,11 @@ export function OportunidadesView({
                   >
                     {ESTADO_LABELS[o.estado]}
                   </span>
+                  {o.estado === "perdida" && o.motivo_perdida && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {MOTIVO_PERDIDA_LABELS[o.motivo_perdida] ?? o.motivo_perdida}
+                    </p>
+                  )}
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   {puedeEditarPolizas && (
@@ -323,6 +336,8 @@ export function OportunidadesView({
               monto_estimado: editing.monto_estimado,
               estado: editing.estado,
               propietario_id: editing.propietario_id ?? "",
+              motivo_perdida:
+                (editing.motivo_perdida as OportunidadInput["motivo_perdida"]) ?? "",
               notas: editing.notas ?? "",
             }}
             onSubmit={handleUpdate}

@@ -7,14 +7,28 @@ import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
 import { assertPuedeEditar } from "@/lib/permisos/server";
 import type { Database } from "@/lib/types/database.types";
 
-const oportunidadSchema = z.object({
-  cliente_id: z.string().uuid("Selecciona un cliente"),
-  titulo: z.string().trim().min(1, "El título es obligatorio"),
-  monto_estimado: z.coerce.number().nonnegative().optional().nullable(),
-  estado: z.enum(["abierta", "ganada", "perdida"]),
-  propietario_id: z.string().uuid().optional().or(z.literal("")),
-  notas: z.string().trim().optional().or(z.literal("")),
-});
+const MOTIVOS_PERDIDA = [
+  "precio",
+  "competencia",
+  "no_responde",
+  "cambio_necesidad",
+  "otro",
+] as const;
+
+const oportunidadSchema = z
+  .object({
+    cliente_id: z.string().uuid("Selecciona un cliente"),
+    titulo: z.string().trim().min(1, "El título es obligatorio"),
+    monto_estimado: z.coerce.number().nonnegative().optional().nullable(),
+    estado: z.enum(["abierta", "ganada", "perdida"]),
+    propietario_id: z.string().uuid().optional().or(z.literal("")),
+    motivo_perdida: z.enum(MOTIVOS_PERDIDA).optional().or(z.literal("")),
+    notas: z.string().trim().optional().or(z.literal("")),
+  })
+  .refine((data) => data.estado !== "perdida" || data.motivo_perdida, {
+    message: "Selecciona el motivo de la pérdida",
+    path: ["motivo_perdida"],
+  });
 
 export type OportunidadInput = z.infer<typeof oportunidadSchema>;
 
@@ -25,6 +39,9 @@ function toValues(parsed: OportunidadInput) {
     monto_estimado: parsed.monto_estimado ?? null,
     estado: parsed.estado,
     propietario_id: parsed.propietario_id || null,
+    // Solo tiene sentido mientras el estado siga siendo 'perdida' — se
+    // limpia si se reabre o se termina ganando.
+    motivo_perdida: parsed.estado === "perdida" ? parsed.motivo_perdida || null : null,
     notas: parsed.notas || null,
     // Closed the moment it moves to ganada/perdida; cleared if reopened.
     fecha_cierre:

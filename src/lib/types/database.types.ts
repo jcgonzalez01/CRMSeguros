@@ -206,6 +206,7 @@ export type Database = {
           fecha_cierre: string | null
           id: string
           monto_estimado: number | null
+          motivo_perdida: string | null
           notas: string | null
           propietario_id: string | null
           titulo: string
@@ -219,6 +220,7 @@ export type Database = {
           fecha_cierre?: string | null
           id?: string
           monto_estimado?: number | null
+          motivo_perdida?: string | null
           notas?: string | null
           propietario_id?: string | null
           titulo: string
@@ -232,6 +234,7 @@ export type Database = {
           fecha_cierre?: string | null
           id?: string
           monto_estimado?: number | null
+          motivo_perdida?: string | null
           notas?: string | null
           propietario_id?: string | null
           titulo?: string

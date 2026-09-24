@@ -10,6 +10,18 @@ const ESTADO_LABELS: Record<OportunidadInput["estado"], string> = {
   perdida: "Perdida",
 };
 
+const MOTIVO_PERDIDA_LABELS: Record<
+  NonNullable<OportunidadInput["motivo_perdida"]>,
+  string
+> = {
+  precio: "Precio",
+  competencia: "Se fue con la competencia",
+  no_responde: "Dejó de responder",
+  cambio_necesidad: "Cambió de necesidad",
+  otro: "Otro",
+  "": "",
+};
+
 export function OportunidadForm({
   defaultValues,
   clientes,
@@ -31,6 +43,7 @@ export function OportunidadForm({
     monto_estimado: defaultValues?.monto_estimado ?? null,
     estado: defaultValues?.estado ?? "abierta",
     propietario_id: defaultValues?.propietario_id ?? "",
+    motivo_perdida: defaultValues?.motivo_perdida ?? "",
     notas: defaultValues?.notas ?? "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +130,34 @@ export function OportunidadForm({
           </select>
         </div>
       </div>
+
+      {form.estado === "perdida" && (
+        <div>
+          <label className="block text-sm font-medium mb-1">Motivo de pérdida *</label>
+          <select
+            required
+            value={form.motivo_perdida}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                motivo_perdida: e.target.value as OportunidadInput["motivo_perdida"],
+              })
+            }
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled>
+              Selecciona…
+            </option>
+            {Object.entries(MOTIVO_PERDIDA_LABELS)
+              .filter(([value]) => value !== "")
+              .map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Propietario</label>
