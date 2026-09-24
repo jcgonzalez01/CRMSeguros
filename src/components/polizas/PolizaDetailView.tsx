@@ -67,12 +67,14 @@ export function PolizaDetailView({
   clientes,
   aseguradoras,
   propietarios,
+  oportunidades = [],
   puedeEditar,
 }: {
   poliza: Poliza;
   clientes: Option[];
   aseguradoras: Option[];
   propietarios: Option[];
+  oportunidades?: { id: string; titulo: string }[];
   puedeEditar: boolean;
 }) {
   const [editing, setEditing] = useState(false);
@@ -163,6 +165,7 @@ export function PolizaDetailView({
         </Campo>
         <Campo label="Aseguradora">{poliza.aseguradora?.nombre ?? "—"}</Campo>
         <Campo label="Propietario">{poliza.propietario?.full_name ?? "Sin asignar"}</Campo>
+        <Campo label="Oportunidad de origen">{poliza.oportunidad?.titulo ?? "—"}</Campo>
         <Campo label="Fecha de emisión">{formatFecha(poliza.fecha_emision)}</Campo>
         <Campo label="Fecha de vencimiento">{formatFecha(poliza.fecha_vencimiento)}</Campo>
         <Campo label="Plan de pago">{PLAN_PAGO_LABELS[poliza.plan_pago]}</Campo>
@@ -202,6 +205,7 @@ export function PolizaDetailView({
           clientes={clientes}
           aseguradoras={aseguradoras}
           propietarios={propietarios}
+          oportunidades={oportunidades}
           defaultValues={{
             cliente_id: poliza.cliente_id,
             aseguradora_id: poliza.aseguradora_id,
@@ -216,6 +220,7 @@ export function PolizaDetailView({
             plan_pago: poliza.plan_pago,
             estado: poliza.estado,
             propietario_id: poliza.propietario_id ?? "",
+            oportunidad_id: poliza.oportunidad_id ?? "",
             beneficiarios: poliza.beneficiarios ?? "",
             notas: poliza.notas ?? "",
             comision_tipo: poliza.comision_tipo ?? "",
@@ -236,6 +241,7 @@ export function PolizaDetailView({
           clientes={clientes}
           aseguradoras={aseguradoras}
           propietarios={propietarios}
+          oportunidades={oportunidades}
           defaultValues={calcularRenovacion(poliza)}
           onSubmit={handleRenovar}
           onCancel={() => setRenewing(false)}

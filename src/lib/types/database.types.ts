@@ -390,6 +390,7 @@ export type Database = {
           monto: number
           notas: string | null
           numero_poliza: string
+          oportunidad_id: string | null
           plan_pago: Database["public"]["Enums"]["payment_plan"]
           producto: string
           propietario_id: string | null
@@ -414,6 +415,7 @@ export type Database = {
           monto: number
           notas?: string | null
           numero_poliza: string
+          oportunidad_id?: string | null
           plan_pago: Database["public"]["Enums"]["payment_plan"]
           producto: string
           propietario_id?: string | null
@@ -438,6 +440,7 @@ export type Database = {
           monto?: number
           notas?: string | null
           numero_poliza?: string
+          oportunidad_id?: string | null
           plan_pago?: Database["public"]["Enums"]["payment_plan"]
           producto?: string
           propietario_id?: string | null
@@ -471,6 +474,20 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "oportunidades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "polizas_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "v_oportunidades_semana"
             referencedColumns: ["id"]
           },
           {
@@ -527,6 +544,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id: string
+          oportunidad_id: string | null
           poliza_id: string | null
           titulo: string
           updated_at: string
@@ -540,6 +558,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite: string
           id?: string
+          oportunidad_id?: string | null
           poliza_id?: string | null
           titulo: string
           updated_at?: string
@@ -553,6 +572,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["task_status"]
           fecha_limite?: string
           id?: string
+          oportunidad_id?: string | null
           poliza_id?: string | null
           titulo?: string
           updated_at?: string
@@ -577,6 +597,20 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "oportunidades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "v_oportunidades_semana"
             referencedColumns: ["id"]
           },
           {

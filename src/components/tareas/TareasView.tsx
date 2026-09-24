@@ -29,11 +29,13 @@ export function TareasView({
   initialTareas,
   clientes,
   miembros,
+  oportunidades = [],
   puedeEditar,
 }: {
   initialTareas: TareaListItem[];
   clientes: Option[];
   miembros: Option[];
+  oportunidades?: { id: string; titulo: string }[];
   puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -171,6 +173,11 @@ export function TareasView({
                 </td>
                 <td className={`px-4 py-2 ${t.estado === "completada" ? "line-through" : ""}`}>
                   {t.titulo}
+                  {t.oportunidad && (
+                    <p className="text-xs text-gray-400 font-normal">
+                      De: {t.oportunidad.titulo}
+                    </p>
+                  )}
                 </td>
                 <td className="px-4 py-2 hidden sm:table-cell">{t.cliente?.nombre ?? "—"}</td>
                 <td className="px-4 py-2 hidden md:table-cell">
@@ -207,6 +214,7 @@ export function TareasView({
         <TareaForm
           clientes={clientes}
           miembros={miembros}
+          oportunidades={oportunidades}
           onSubmit={handleCreate}
           onCancel={() => setCreating(false)}
           submitLabel="Crear"
@@ -218,11 +226,13 @@ export function TareasView({
           <TareaForm
             clientes={clientes}
             miembros={miembros}
+            oportunidades={oportunidades}
             defaultValues={{
               titulo: editing.titulo,
               descripcion: editing.descripcion ?? "",
               cliente_id: editing.cliente_id ?? "",
               asignado_a: editing.asignado_a ?? "",
+              oportunidad_id: editing.oportunidad_id ?? "",
               fecha_limite: editing.fecha_limite,
               estado: editing.estado,
             }}

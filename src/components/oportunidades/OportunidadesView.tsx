@@ -9,11 +9,14 @@ import {
   updateOportunidad,
   type OportunidadInput,
 } from "@/lib/actions/oportunidades";
+import { createPoliza, type PolizaInput } from "@/lib/actions/polizas";
+import { createTarea, type TareaInput } from "@/lib/actions/tareas";
 import type { OpportunityStatus } from "@/lib/types/database.types";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OportunidadForm } from "./OportunidadForm";
-import type { Option } from "@/components/polizas/PolizaForm";
+import { PolizaForm, type Option } from "@/components/polizas/PolizaForm";
+import { TareaForm } from "@/components/tareas/TareaForm";
 
 function formatMonto(monto: number | null) {
   if (monto === null) return "—";
@@ -49,13 +52,19 @@ function fechaEfectiva(o: OportunidadListItem): Date {
 export function OportunidadesView({
   initialOportunidades,
   clientes,
+  aseguradoras = [],
   propietarios,
   puedeEditar,
+  puedeEditarPolizas = false,
+  puedeEditarTareas = false,
 }: {
   initialOportunidades: OportunidadListItem[];
   clientes: Option[];
+  aseguradoras?: Option[];
   propietarios: Option[];
   puedeEditar: boolean;
+  puedeEditarPolizas?: boolean;
+  puedeEditarTareas?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [estado, setEstado] = useState<OpportunityStatus | "">("");
@@ -65,6 +74,8 @@ export function OportunidadesView({
   const [editing, setEditing] = useState<OportunidadListItem | null>(null);
   const [deleting, setDeleting] = useState<OportunidadListItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [creatingPolizaFrom, setCreatingPolizaFrom] = useState<OportunidadListItem | null>(null);
+  const [creatingTareaFrom, setCreatingTareaFrom] = useState<OportunidadListItem | null>(null);
 
   const queryClient = useQueryClient();
   const filter = { search: search || undefined, estado: estado || undefined };
@@ -127,6 +138,19 @@ export function OportunidadesView({
     } finally {
       setDeleteLoading(false);
     }
+  }
+
+  async function handleCreatePoliza(input: PolizaInput) {
+    await createPoliza(input);
+    setCreatingPolizaFrom(null);
+    queryClient.invalidateQueries({ queryKey: ["polizas"] });
+    queryClient.invalidateQueries({ queryKey: ["aseguradoras"] });
+  }
+
+  async function handleCreateTarea(input: TareaInput) {
+    await createTarea(input);
+    setCreatingTareaFrom(null);
+    queryClient.invalidateQueries({ queryKey: ["tareas"] });
   }
 
   return (
@@ -239,6 +263,22 @@ export function OportunidadesView({
                   </span>
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
+                  {puedeEditarPolizas && (
+                    <button
+                      onClick={() => setCreatingPolizaFrom(o)}
+                      className="text-sm text-blue-600 hover:text-blue-800 mr-3"
+                    >
+                      Crear póliza
+                    </button>
+                  )}
+                  {puedeEditarTareas && (
+                    <button
+                      onClick={() => setCreatingTareaFrom(o)}
+                      className="text-sm text-blue-600 hover:text-blue-800 mr-3"
+                    >
+                      Nueva tarea
+                    </button>
+                  )}
                   {puedeEditar && (
                     <>
                       <button
@@ -300,6 +340,53 @@ export function OportunidadesView({
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />
+
+      <Modal
+        open={!!creatingPolizaFrom}
+        onClose={() => setCreatingPolizaFrom(null)}
+        title={`Crear póliza desde "${creatingPolizaFrom?.titulo ?? ""}"`}
+      >
+        {creatingPolizaFrom && (
+          <PolizaForm
+            clientes={clientes}
+            aseguradoras={aseguradoras}
+            propietarios={propietarios}
+            oportunidades={[{ id: creatingPolizaFrom.id, titulo: creatingPolizaFrom.titulo }]}
+            defaultValues={{
+              cliente_id: creatingPolizaFrom.cliente_id,
+              oportunidad_id: creatingPolizaFrom.id,
+              monto: creatingPolizaFrom.monto_estimado ?? 0,
+              propietario_id: creatingPolizaFrom.propietario_id ?? "",
+            }}
+            onSubmit={handleCreatePoliza}
+            onCancel={() => setCreatingPolizaFrom(null)}
+            submitLabel="Crear póliza"
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={!!creatingTareaFrom}
+        onClose={() => setCreatingTareaFrom(null)}
+        title={`Nueva tarea desde "${creatingTareaFrom?.titulo ?? ""}"`}
+      >
+        {creatingTareaFrom && (
+          <TareaForm
+            clientes={clientes}
+            miembros={propietarios}
+            oportunidades={[{ id: creatingTareaFrom.id, titulo: creatingTareaFrom.titulo }]}
+            defaultValues={{
+              titulo: `Seguimiento: ${creatingTareaFrom.titulo}`,
+              cliente_id: creatingTareaFrom.cliente_id,
+              oportunidad_id: creatingTareaFrom.id,
+              asignado_a: creatingTareaFrom.propietario_id ?? "",
+            }}
+            onSubmit={handleCreateTarea}
+            onCancel={() => setCreatingTareaFrom(null)}
+            submitLabel="Crear tarea"
+          />
+        )}
+      </Modal>
     </div>
   );
 }

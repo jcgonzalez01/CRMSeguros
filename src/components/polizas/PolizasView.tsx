@@ -42,12 +42,14 @@ export function PolizasView({
   clientes,
   aseguradoras,
   propietarios,
+  oportunidades = [],
   puedeEditar,
 }: {
   initialPolizas: PolizaListItem[];
   clientes: Option[];
   aseguradoras: Option[];
   propietarios: Option[];
+  oportunidades?: { id: string; titulo: string }[];
   puedeEditar: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -242,6 +244,7 @@ export function PolizasView({
           clientes={clientes}
           aseguradoras={aseguradoras}
           propietarios={propietarios}
+          oportunidades={oportunidades}
           onSubmit={handleCreate}
           onCancel={() => setCreating(false)}
           submitLabel="Crear"
@@ -255,6 +258,7 @@ export function PolizasView({
               clientes={clientes}
               aseguradoras={aseguradoras}
               propietarios={propietarios}
+              oportunidades={oportunidades}
               defaultValues={{
                 cliente_id: editing.cliente_id,
                 aseguradora_id: editing.aseguradora_id,
@@ -269,6 +273,7 @@ export function PolizasView({
                 plan_pago: editing.plan_pago,
                 estado: editing.estado,
                 propietario_id: editing.propietario_id ?? "",
+                oportunidad_id: editing.oportunidad_id ?? "",
                 beneficiarios: editing.beneficiarios ?? "",
                 notas: editing.notas ?? "",
                 comision_tipo: editing.comision_tipo ?? "",
@@ -293,6 +298,7 @@ export function PolizasView({
             clientes={clientes}
             aseguradoras={aseguradoras}
             propietarios={propietarios}
+            oportunidades={oportunidades}
             defaultValues={calcularRenovacion(renewingFrom)}
             onSubmit={handleRenovar}
             onCancel={() => setRenewingFrom(null)}

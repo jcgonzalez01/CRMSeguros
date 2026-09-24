@@ -11,7 +11,7 @@ export interface PolizasFilter {
 }
 
 export const POLIZA_SELECT =
-  "*, cliente:clientes(id, nombre), aseguradora:aseguradoras(id, nombre), propietario:profiles!polizas_propietario_id_fkey(id, full_name)";
+  "*, cliente:clientes(id, nombre), aseguradora:aseguradoras(id, nombre), propietario:profiles!polizas_propietario_id_fkey(id, full_name), oportunidad:oportunidades(id, titulo)";
 
 export async function listPolizas(supabase: Client, filter: PolizasFilter = {}) {
   let query = supabase

@@ -11,7 +11,7 @@ export interface TareasFilter {
 }
 
 const TAREA_SELECT =
-  "*, cliente:clientes(id, nombre), asignado:profiles!tareas_asignado_a_fkey(id, full_name)";
+  "*, cliente:clientes(id, nombre), asignado:profiles!tareas_asignado_a_fkey(id, full_name), oportunidad:oportunidades(id, titulo)";
 
 export async function listTareas(supabase: Client, filter: TareasFilter = {}) {
   let query = supabase

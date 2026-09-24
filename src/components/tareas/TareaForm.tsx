@@ -8,6 +8,7 @@ export function TareaForm({
   defaultValues,
   clientes,
   miembros,
+  oportunidades = [],
   onSubmit,
   onCancel,
   submitLabel = "Guardar",
@@ -15,6 +16,7 @@ export function TareaForm({
   defaultValues?: Partial<TareaInput>;
   clientes: Option[];
   miembros: Option[];
+  oportunidades?: { id: string; titulo: string }[];
   onSubmit: (input: TareaInput) => Promise<void>;
   onCancel: () => void;
   submitLabel?: string;
@@ -24,6 +26,7 @@ export function TareaForm({
     descripcion: defaultValues?.descripcion ?? "",
     cliente_id: defaultValues?.cliente_id ?? "",
     asignado_a: defaultValues?.asignado_a ?? "",
+    oportunidad_id: defaultValues?.oportunidad_id ?? "",
     fecha_limite: defaultValues?.fecha_limite ?? "",
     estado: defaultValues?.estado ?? "pendiente",
   });
@@ -96,6 +99,22 @@ export function TareaForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Oportunidad relacionada</label>
+        <select
+          value={form.oportunidad_id}
+          onChange={(e) => setForm({ ...form, oportunidad_id: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sin oportunidad</option>
+          {oportunidades.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.titulo}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

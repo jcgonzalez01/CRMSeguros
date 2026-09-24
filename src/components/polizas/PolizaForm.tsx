@@ -33,6 +33,7 @@ export function PolizaForm({
   clientes,
   aseguradoras,
   propietarios,
+  oportunidades = [],
   onSubmit,
   onCancel,
   submitLabel = "Guardar",
@@ -41,6 +42,7 @@ export function PolizaForm({
   clientes: Option[];
   aseguradoras: Option[];
   propietarios: Option[];
+  oportunidades?: { id: string; titulo: string }[];
   onSubmit: (input: PolizaInput) => Promise<void>;
   onCancel: () => void;
   submitLabel?: string;
@@ -59,6 +61,7 @@ export function PolizaForm({
     plan_pago: defaultValues?.plan_pago ?? "mensual",
     estado: defaultValues?.estado ?? "activa",
     propietario_id: defaultValues?.propietario_id ?? "",
+    oportunidad_id: defaultValues?.oportunidad_id ?? "",
     beneficiarios: defaultValues?.beneficiarios ?? "",
     notas: defaultValues?.notas ?? "",
     comision_tipo: defaultValues?.comision_tipo ?? "",
@@ -279,6 +282,22 @@ export function PolizaForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Oportunidad de origen</label>
+        <select
+          value={form.oportunidad_id}
+          onChange={(e) => setForm({ ...form, oportunidad_id: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sin oportunidad</option>
+          {oportunidades.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.titulo}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

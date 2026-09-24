@@ -12,6 +12,7 @@ const tareaSchema = z.object({
   descripcion: z.string().trim().optional().or(z.literal("")),
   cliente_id: z.string().uuid().optional().or(z.literal("")),
   asignado_a: z.string().uuid().optional().or(z.literal("")),
+  oportunidad_id: z.string().uuid().optional().or(z.literal("")),
   fecha_limite: z.string().min(1, "La fecha límite es obligatoria"),
   estado: z.enum(["pendiente", "completada"]),
 });
@@ -24,6 +25,7 @@ function toValues(parsed: TareaInput) {
     descripcion: parsed.descripcion || null,
     cliente_id: parsed.cliente_id || null,
     asignado_a: parsed.asignado_a || null,
+    oportunidad_id: parsed.oportunidad_id || null,
     fecha_limite: parsed.fecha_limite,
     estado: parsed.estado,
   };

@@ -31,6 +31,7 @@ export function calcularRenovacion(p: PolizaListItem): Partial<PolizaInput> {
     plan_pago: p.plan_pago,
     estado: "activa",
     propietario_id: p.propietario_id ?? "",
+    oportunidad_id: p.oportunidad_id ?? "",
     beneficiarios: p.beneficiarios ?? "",
     notas: "",
     comision_tipo: p.comision_tipo ?? "",

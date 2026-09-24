@@ -33,3 +33,15 @@ export async function listOportunidades(
   if (error) throw error;
   return data;
 }
+
+// Excluye 'perdida': no tiene sentido vincular una póliza o tarea nueva a
+// una oportunidad ya perdida.
+export async function listOportunidadesOptions(supabase: Client) {
+  const { data, error } = await supabase
+    .from("oportunidades")
+    .select("id, titulo, cliente_id")
+    .neq("estado", "perdida")
+    .order("titulo");
+  if (error) throw error;
+  return data;
+}
