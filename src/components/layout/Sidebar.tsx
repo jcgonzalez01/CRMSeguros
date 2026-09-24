@@ -38,6 +38,18 @@ const NAV_ITEMS: {
     ),
   },
   {
+    href: "/oportunidades",
+    label: "Oportunidades",
+    module: "oportunidades",
+    icon: (
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
+      />
+    ),
+  },
+  {
     href: "/clientes",
     label: "Clientes",
     module: "clientes",
@@ -70,18 +82,6 @@ const NAV_ITEMS: {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21"
-      />
-    ),
-  },
-  {
-    href: "/oportunidades",
-    label: "Oportunidades",
-    module: "oportunidades",
-    icon: (
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
       />
     ),
   },
