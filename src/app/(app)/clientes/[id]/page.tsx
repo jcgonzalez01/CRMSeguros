@@ -2,6 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCliente, getClienteRelated } from "@/lib/queries/clientes";
+import { listDependientes } from "@/lib/queries/dependientes";
+import { getAccesoModulo } from "@/lib/permisos/server";
+import { DependientesPanel } from "@/components/clientes/DependientesPanel";
 import type { MonedaPoliza } from "@/lib/types/database.types";
 
 const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
@@ -53,10 +56,11 @@ export default async function ClienteDetailPage({
     notFound();
   }
 
-  const { polizas, oportunidades, tareas } = await getClienteRelated(
-    supabase,
-    id
-  );
+  const [{ polizas, oportunidades, tareas }, dependientes, nivel] = await Promise.all([
+    getClienteRelated(supabase, id),
+    listDependientes(supabase, id),
+    getAccesoModulo(supabase, "clientes"),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -88,6 +92,12 @@ export default async function ClienteDetailPage({
         </Campo>
         <Campo label="Ocupación">{cliente.ocupacion ?? "—"}</Campo>
       </section>
+
+      <DependientesPanel
+        clienteId={id}
+        initialDependientes={dependientes}
+        puedeEditar={nivel === "editar"}
+      />
 
       <section>
         <h2 className="text-lg font-semibold mb-2">Pólizas</h2>

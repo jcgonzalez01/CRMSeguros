@@ -150,6 +150,54 @@ export type Database = {
           },
         ]
       }
+      dependientes: {
+        Row: {
+          cedula: string | null
+          cliente_id: string
+          created_at: string
+          empresa_id: string
+          fecha_nacimiento: string | null
+          id: string
+          nombre: string
+          parentesco: string | null
+        }
+        Insert: {
+          cedula?: string | null
+          cliente_id: string
+          created_at?: string
+          empresa_id: string
+          fecha_nacimiento?: string | null
+          id?: string
+          nombre: string
+          parentesco?: string | null
+        }
+        Update: {
+          cedula?: string | null
+          cliente_id?: string
+          created_at?: string
+          empresa_id?: string
+          fecha_nacimiento?: string | null
+          id?: string
+          nombre?: string
+          parentesco?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dependientes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dependientes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresa_perfil: {
         Row: {
           correo: string | null
