@@ -1115,7 +1115,7 @@ export type Database = {
       opportunity_status: "abierta" | "ganada" | "perdida"
       payment_plan: "unico" | "mensual" | "trimestral" | "semestral" | "anual"
       policy_status: "activa" | "vencida" | "cancelada"
-      task_status: "pendiente" | "completada"
+      task_status: "pendiente" | "en_progreso" | "en_espera" | "vencida" | "completada" | "cancelada"
       user_role: "Admin" | "Manager" | "Gerente" | "Corredor"
     }
     CompositeTypes: {
@@ -1252,7 +1252,7 @@ export const Constants = {
       opportunity_status: ["abierta", "ganada", "perdida"],
       payment_plan: ["unico", "mensual", "trimestral", "semestral", "anual"],
       policy_status: ["activa", "vencida", "cancelada"],
-      task_status: ["pendiente", "completada"],
+      task_status: ["pendiente", "en_progreso", "en_espera", "vencida", "completada", "cancelada"],
       user_role: ["Admin", "Manager", "Gerente", "Corredor"],
     },
   },

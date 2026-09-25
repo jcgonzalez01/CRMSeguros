@@ -16,12 +16,32 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { TareaForm } from "./TareaForm";
 import type { Option } from "@/components/polizas/PolizaForm";
 
+const ESTADO_LABEL: Record<TaskStatus, string> = {
+  pendiente: "Pendiente",
+  en_progreso: "En progreso",
+  en_espera: "En espera",
+  vencida: "Vencida",
+  completada: "Completada",
+  cancelada: "Cancelada",
+};
+
+const ESTADO_BADGE: Record<TaskStatus, string> = {
+  pendiente: "bg-gray-100 text-gray-700",
+  en_progreso: "bg-blue-100 text-blue-800",
+  en_espera: "bg-amber-100 text-amber-800",
+  vencida: "bg-red-100 text-red-800",
+  completada: "bg-green-100 text-green-800",
+  cancelada: "bg-gray-100 text-gray-500",
+};
+
+const ESTADOS_FINALES: TaskStatus[] = ["completada", "cancelada"];
+
 function formatFecha(fecha: string) {
   return new Intl.DateTimeFormat("es").format(new Date(fecha));
 }
 
 function isAtrasada(tarea: TareaListItem) {
-  if (tarea.estado === "completada") return false;
+  if (ESTADOS_FINALES.includes(tarea.estado)) return false;
   return new Date(tarea.fecha_limite) < new Date(new Date().toDateString());
 }
 
@@ -71,8 +91,7 @@ export function TareasView({
     invalidate();
   }
 
-  async function handleToggle(tarea: TareaListItem) {
-    const next = tarea.estado === "completada" ? "pendiente" : "completada";
+  async function handleEstadoChange(tarea: TareaListItem, next: TaskStatus) {
     await setTareaEstado(tarea.id, next);
     invalidate();
   }
@@ -117,7 +136,11 @@ export function TareasView({
         >
           <option value="">Todos los estados</option>
           <option value="pendiente">Pendiente</option>
+          <option value="en_progreso">En progreso</option>
+          <option value="en_espera">En espera</option>
+          <option value="vencida">Vencida</option>
           <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
         </select>
         <select
           value={asignadoA}
@@ -137,11 +160,11 @@ export function TareasView({
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 w-10" />
               <th className="px-4 py-2 text-left font-medium text-gray-500">Título</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Cliente</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden md:table-cell">Asignado</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Fecha límite</th>
+              <th className="px-4 py-2 text-left font-medium text-gray-500">Estado</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -161,16 +184,7 @@ export function TareasView({
               </tr>
             )}
             {tareas?.map((t) => (
-              <tr key={t.id} className={t.estado === "completada" ? "opacity-60" : ""}>
-                <td className="px-4 py-2">
-                  <input
-                    type="checkbox"
-                    checked={t.estado === "completada"}
-                    onChange={() => handleToggle(t)}
-                    disabled={!puedeEditar}
-                    className="h-4 w-4 rounded border-gray-300 disabled:opacity-50"
-                  />
-                </td>
+              <tr key={t.id} className={ESTADOS_FINALES.includes(t.estado) ? "opacity-60" : ""}>
                 <td className={`px-4 py-2 ${t.estado === "completada" ? "line-through" : ""}`}>
                   {t.titulo}
                   {t.oportunidad && (
@@ -185,6 +199,20 @@ export function TareasView({
                 </td>
                 <td className={`px-4 py-2 ${isAtrasada(t) ? "text-red-600 font-medium" : ""}`}>
                   {formatFecha(t.fecha_limite)}
+                </td>
+                <td className="px-4 py-2">
+                  <select
+                    value={t.estado}
+                    onChange={(e) => handleEstadoChange(t, e.target.value as TaskStatus)}
+                    disabled={!puedeEditar}
+                    className={`rounded-full border-0 px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${ESTADO_BADGE[t.estado]}`}
+                  >
+                    {(Object.keys(ESTADO_LABEL) as TaskStatus[]).map((estadoOption) => (
+                      <option key={estadoOption} value={estadoOption}>
+                        {ESTADO_LABEL[estadoOption]}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   {puedeEditar && (

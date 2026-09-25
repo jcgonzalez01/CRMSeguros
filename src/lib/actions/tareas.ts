@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { omitEmpresaId } from "@/lib/supabase/insert-helpers";
 import { assertPuedeEditar } from "@/lib/permisos/server";
-import type { Database } from "@/lib/types/database.types";
+import type { Database, TaskStatus } from "@/lib/types/database.types";
 
 const tareaSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio"),
@@ -14,7 +14,7 @@ const tareaSchema = z.object({
   asignado_a: z.string().uuid().optional().or(z.literal("")),
   oportunidad_id: z.string().uuid().optional().or(z.literal("")),
   fecha_limite: z.string().min(1, "La fecha límite es obligatoria"),
-  estado: z.enum(["pendiente", "completada"]),
+  estado: z.enum(["pendiente", "en_progreso", "en_espera", "vencida", "completada", "cancelada"]),
 });
 
 export type TareaInput = z.infer<typeof tareaSchema>;
@@ -62,7 +62,7 @@ export async function updateTarea(id: string, input: TareaInput) {
   if (parsed.cliente_id) revalidatePath(`/clientes/${parsed.cliente_id}`);
 }
 
-export async function setTareaEstado(id: string, estado: "pendiente" | "completada") {
+export async function setTareaEstado(id: string, estado: TaskStatus) {
   const supabase = await createClient();
   await assertPuedeEditar(supabase, "tareas");
   const { error } = await supabase

@@ -138,7 +138,11 @@ export function TareaForm({
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="pendiente">Pendiente</option>
+            <option value="en_progreso">En progreso</option>
+            <option value="en_espera">En espera</option>
+            <option value="vencida">Vencida</option>
             <option value="completada">Completada</option>
+            <option value="cancelada">Cancelada</option>
           </select>
         </div>
       </div>

@@ -132,7 +132,7 @@ export async function renovarPoliza(polizaAnteriorId: string, input: PolizaInput
     .from("tareas")
     .update({ estado: "completada" })
     .eq("poliza_id", polizaAnteriorId)
-    .eq("estado", "pendiente");
+    .not("estado", "in", "(completada,cancelada)");
 
   revalidatePath("/tareas");
   return nueva;
