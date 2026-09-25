@@ -84,6 +84,7 @@ export function OportunidadesView({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [creatingPolizaFrom, setCreatingPolizaFrom] = useState<OportunidadListItem | null>(null);
   const [creatingTareaFrom, setCreatingTareaFrom] = useState<OportunidadListItem | null>(null);
+  const [viewing, setViewing] = useState<OportunidadListItem | null>(null);
 
   const queryClient = useQueryClient();
   const filter = { search: search || undefined, estado: estado || undefined };
@@ -232,6 +233,7 @@ export function OportunidadesView({
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-4 py-2 text-left font-medium text-gray-500 w-10">#</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Título</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Cliente</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 hidden md:table-cell">Propietario</th>
@@ -243,21 +245,28 @@ export function OportunidadesView({
           <tbody className="divide-y divide-gray-100">
             {isLoading && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
                   Cargando…
                 </td>
               </tr>
             )}
             {!isLoading && oportunidadesFiltradas?.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
                   No se encontraron oportunidades.
                 </td>
               </tr>
             )}
-            {oportunidadesFiltradas?.map((o) => (
-              <tr key={o.id}>
-                <td className="px-4 py-2">{o.titulo}</td>
+            {oportunidadesFiltradas?.map((o, index) => (
+              <tr
+                key={o.id}
+                onClick={() => setViewing(o)}
+                className="cursor-pointer hover:bg-gray-50"
+              >
+                <td className="px-4 py-2 text-gray-400">{index + 1}</td>
+                <td className="px-4 py-2 text-blue-600 hover:text-blue-800 hover:underline">
+                  {o.titulo}
+                </td>
                 <td className="px-4 py-2 hidden sm:table-cell">{o.cliente?.nombre ?? "—"}</td>
                 <td className="px-4 py-2 hidden md:table-cell">
                   {o.propietario?.full_name ?? "—"}
@@ -275,7 +284,10 @@ export function OportunidadesView({
                     </p>
                   )}
                 </td>
-                <td className="px-4 py-2 text-right whitespace-nowrap">
+                <td
+                  className="px-4 py-2 text-right whitespace-nowrap"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {puedeEditarPolizas && (
                     <button
                       onClick={() => setCreatingPolizaFrom(o)}
@@ -344,6 +356,100 @@ export function OportunidadesView({
             onCancel={() => setEditing(null)}
             submitLabel="Guardar cambios"
           />
+        )}
+      </Modal>
+
+      <Modal
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        title={viewing?.titulo ?? ""}
+      >
+        {viewing && (
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="text-gray-500">Cliente</p>
+              <p className="font-medium">{viewing.cliente?.nombre ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Propietario</p>
+              <p className="font-medium">{viewing.propietario?.full_name ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Monto</p>
+              <p className="font-medium">{formatMonto(viewing.monto_estimado)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Estado</p>
+              <span
+                className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${ESTADO_BADGE[viewing.estado]}`}
+              >
+                {ESTADO_LABELS[viewing.estado]}
+              </span>
+            </div>
+            {viewing.estado === "perdida" && viewing.motivo_perdida && (
+              <div>
+                <p className="text-gray-500">Motivo de pérdida</p>
+                <p className="font-medium">
+                  {MOTIVO_PERDIDA_LABELS[viewing.motivo_perdida] ?? viewing.motivo_perdida}
+                </p>
+              </div>
+            )}
+            {viewing.notas && (
+              <div>
+                <p className="text-gray-500">Notas</p>
+                <p className="whitespace-pre-wrap">{viewing.notas}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-gray-500">Creada</p>
+              <p className="font-medium">
+                {new Date(viewing.created_at).toLocaleDateString("es-DO")}
+              </p>
+            </div>
+            {viewing.fecha_cierre && (
+              <div>
+                <p className="text-gray-500">Fecha de cierre</p>
+                <p className="font-medium">
+                  {new Date(viewing.fecha_cierre).toLocaleDateString("es-DO")}
+                </p>
+              </div>
+            )}
+            <div className="flex justify-end gap-3 pt-2">
+              {puedeEditarTareas && (
+                <button
+                  onClick={() => {
+                    setCreatingTareaFrom(viewing);
+                    setViewing(null);
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Nueva tarea
+                </button>
+              )}
+              {puedeEditarPolizas && (
+                <button
+                  onClick={() => {
+                    setCreatingPolizaFrom(viewing);
+                    setViewing(null);
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Crear póliza
+                </button>
+              )}
+              {puedeEditar && (
+                <button
+                  onClick={() => {
+                    setEditing(viewing);
+                    setViewing(null);
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Editar
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </Modal>
 
