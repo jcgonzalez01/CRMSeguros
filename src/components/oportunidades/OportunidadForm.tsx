@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import type { OportunidadInput } from "@/lib/actions/oportunidades";
 import type { Option } from "@/components/polizas/PolizaForm";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input, Select, Textarea } from "@/components/ui/fields";
 
 const ESTADO_LABELS: Record<OportunidadInput["estado"], string> = {
   abierta: "Abierta",
@@ -37,6 +39,7 @@ export function OportunidadForm({
   onCancel: () => void;
   submitLabel?: string;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<OportunidadInput>({
     cliente_id: defaultValues?.cliente_id ?? "",
     titulo: defaultValues?.titulo ?? "",
@@ -65,22 +68,22 @@ export function OportunidadForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Título *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-1`}>Título *</FieldLabel>
+        <Input
+          id={`${uid}-1`}
           required
           value={form.titulo}
           onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Cliente *</label>
-        <select
+        <FieldLabel htmlFor={`${uid}-2`}>Cliente *</FieldLabel>
+        <Select
+          id={`${uid}-2`}
           required
           value={form.cliente_id}
           onChange={(e) => setForm({ ...form, cliente_id: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="" disabled>
             Selecciona…
@@ -90,13 +93,14 @@ export function OportunidadForm({
               {c.nombre}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium mb-1">Monto estimado</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-3`}>Monto estimado</FieldLabel>
+          <Input
+            id={`${uid}-3`}
             type="number"
             min="0"
             step="0.01"
@@ -107,12 +111,12 @@ export function OportunidadForm({
                 monto_estimado: e.target.value ? Number(e.target.value) : null,
               })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Estado *</label>
-          <select
+          <FieldLabel htmlFor={`${uid}-4`}>Estado *</FieldLabel>
+          <Select
+            id={`${uid}-4`}
             value={form.estado}
             onChange={(e) =>
               setForm({
@@ -120,21 +124,21 @@ export function OportunidadForm({
                 estado: e.target.value as OportunidadInput["estado"],
               })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {Object.entries(ESTADO_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
       {form.estado === "perdida" && (
         <div>
-          <label className="block text-sm font-medium mb-1">Motivo de pérdida *</label>
-          <select
+          <FieldLabel htmlFor={`${uid}-5`}>Motivo de pérdida *</FieldLabel>
+          <Select
+            id={`${uid}-5`}
             required
             value={form.motivo_perdida}
             onChange={(e) =>
@@ -143,7 +147,6 @@ export function OportunidadForm({
                 motivo_perdida: e.target.value as OportunidadInput["motivo_perdida"],
               })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="" disabled>
               Selecciona…
@@ -155,16 +158,16 @@ export function OportunidadForm({
                   {label}
                 </option>
               ))}
-          </select>
+          </Select>
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium mb-1">Propietario</label>
-        <select
+        <FieldLabel htmlFor={`${uid}-6`}>Propietario</FieldLabel>
+        <Select
+          id={`${uid}-6`}
           value={form.propietario_id}
           onChange={(e) => setForm({ ...form, propietario_id: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Sin asignar</option>
           {propietarios.map((p) => (
@@ -172,36 +175,28 @@ export function OportunidadForm({
               {p.full_name}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Notas</label>
-        <textarea
+        <FieldLabel htmlFor={`${uid}-7`}>Notas</FieldLabel>
+        <Textarea
+          id={`${uid}-7`}
           value={form.notas}
           onChange={(e) => setForm({ ...form, notas: e.target.value })}
           rows={3}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger-700">{error}</p>}
 
-      <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
-        >
+      <div className="flex justify-end gap-3 pt-2">
+        <Button type="button" variant="ghost" onClick={onCancel}>
           Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" disabled={loading}>
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );

@@ -1,23 +1,27 @@
+import { Card } from "@/components/ui/Card";
+
 export function StatCard({
   label,
   value,
   tone = "default",
+  children,
 }: {
   label: string;
   value: string | number;
-  tone?: "default" | "warning" | "danger" | "success";
+  tone?: "default" | "success";
+  children?: React.ReactNode;
 }) {
-  const toneClass = {
-    default: "text-gray-900",
-    warning: "text-amber-600",
-    danger: "text-red-600",
-    success: "text-green-600",
-  }[tone];
+  const toneClass = tone === "success" ? "text-success-700" : "text-gray-900";
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-2xl font-semibold ${toneClass}`}>{value}</p>
-    </div>
+    <Card className="flex flex-col gap-2.5 px-[22px] py-5">
+      <p className="text-[13px] font-medium text-gray-600">{label}</p>
+      <p
+        className={`text-[34px] font-semibold leading-tight tracking-[-0.03em] tabular-nums ${toneClass}`}
+      >
+        {value}
+      </p>
+      {children}
+    </Card>
   );
 }

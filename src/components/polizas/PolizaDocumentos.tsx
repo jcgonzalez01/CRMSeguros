@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { listPolizaDocumentos } from "@/lib/queries/poliza-documentos";
@@ -10,6 +10,8 @@ import {
   uploadPolizaDocumento,
 } from "@/lib/actions/poliza-documentos";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button } from "@/components/ui/Button";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 function formatSize(bytes: number | null) {
   if (bytes === null) return "";
@@ -24,6 +26,7 @@ function formatFecha(fecha: string) {
 
 export function PolizaDocumentos({ polizaId }: { polizaId: string }) {
   const queryClient = useQueryClient();
+  const titleId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,51 +80,70 @@ export function PolizaDocumentos({ polizaId }: { polizaId: string }) {
   }
 
   return (
-    <div className="border-t border-gray-100 pt-4 mt-4">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-medium">Documentos</p>
-        <label className="text-sm text-blue-600 hover:underline cursor-pointer">
-          {uploading ? "Subiendo…" : "Subir archivo"}
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-            disabled={uploading}
-          />
-        </label>
-      </div>
+    <Card aria-labelledby={titleId}>
+      <CardHeader
+        id={titleId}
+        title="Documentos"
+        action={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? "Subiendo…" : "Subir archivo"}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={uploading}
+            />
+          </>
+        }
+      />
 
-      {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
+      {error && <p className="px-5 pt-3 text-sm text-danger-700">{error}</p>}
 
-      {isLoading && <p className="text-sm text-gray-400">Cargando…</p>}
+      {isLoading && <p className="px-5 py-4 text-sm text-gray-600">Cargando…</p>}
       {!isLoading && documentos?.length === 0 && (
-        <p className="text-sm text-gray-400">Sin documentos todavía.</p>
+        <p className="px-5 py-4 text-sm text-gray-600">Sin documentos todavía.</p>
       )}
 
       {documentos && documentos.length > 0 && (
-        <ul className="divide-y divide-gray-100 rounded-md border border-gray-200">
+        <ul className="px-5 pb-2">
           {documentos.map((doc) => (
             <li
               key={doc.id}
-              className="flex items-center justify-between px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-3 border-t border-gray-100 py-3 first:border-t-0"
             >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{doc.nombre_archivo}</p>
-                <p className="text-xs text-gray-400">
-                  {formatSize(doc.size_bytes)} · {formatFecha(doc.created_at)}
-                </p>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate text-sm font-medium text-gray-900">
+                  {doc.nombre_archivo}
+                </span>
+                <span className="text-xs text-gray-600">
+                  {[formatSize(doc.size_bytes), formatFecha(doc.created_at)]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
               </div>
-              <div className="flex shrink-0 gap-3 ml-3">
+              <div className="flex shrink-0 items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => handleDownload(doc.id)}
-                  className="text-blue-600 hover:underline"
+                  aria-label={`Descargar ${doc.nombre_archivo}`}
+                  className="text-[13px] font-semibold text-blue-700 hover:underline"
                 >
                   Descargar
                 </button>
                 <button
+                  type="button"
                   onClick={() => setDeleting({ id: doc.id, nombre: doc.nombre_archivo })}
-                  className="text-red-600 hover:underline"
+                  aria-label={`Eliminar ${doc.nombre_archivo}`}
+                  className="text-[13px] font-semibold text-danger-700 hover:underline"
                 >
                   Eliminar
                 </button>
@@ -139,6 +161,6 @@ export function PolizaDocumentos({ polizaId }: { polizaId: string }) {
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />
-    </div>
+    </Card>
   );
 }

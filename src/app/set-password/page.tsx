@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input } from "@/components/ui/fields";
 
 export default function SetPasswordPage() {
   const router = useRouter();
@@ -39,58 +41,58 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4 bg-gray-50">
-      <div className="w-full max-w-sm space-y-6 rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 text-sm font-bold text-white">
+    <div className="flex flex-1 items-center justify-center bg-canvas px-4 py-10">
+      <div className="flex w-full max-w-[440px] flex-col gap-7 rounded-[18px] border border-gray-200 bg-white p-10 shadow-[0_12px_32px_rgba(16,24,40,0.08)]">
+        <div className="flex flex-col items-center gap-3.5 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-[19px] font-bold text-white">
             CS
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Bienvenido</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-[26px] font-semibold tracking-tight text-gray-900">
+            Bienvenido
+          </h1>
+          <p className="text-sm leading-normal text-gray-600">
             Crea tu contraseña para terminar de unirte al equipo
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
-              Contraseña
-            </label>
-            <input
+            <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+            <Input
               id="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoComplete="new-password"
+              aria-describedby={error ? "set-password-error" : undefined}
+              className="h-11!"
             />
           </div>
 
           <div>
-            <label htmlFor="confirm" className="block text-sm font-medium mb-1">
-              Confirmar contraseña
-            </label>
-            <input
+            <FieldLabel htmlFor="confirm">Confirmar contraseña</FieldLabel>
+            <Input
               id="confirm"
               type="password"
               required
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoComplete="new-password"
+              aria-describedby={error ? "set-password-error" : undefined}
+              className="h-11!"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p id="set-password-error" role="alert" className="text-[13px] text-danger-700">
+              {error}
+            </p>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-          >
+          <Button type="submit" disabled={loading} className="h-[46px]! w-full text-[15px]!">
             {loading ? "Guardando…" : "Crear contraseña"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

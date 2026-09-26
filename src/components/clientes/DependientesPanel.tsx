@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { listDependientes } from "@/lib/queries/dependientes";
@@ -12,6 +12,13 @@ import {
 } from "@/lib/actions/dependientes";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input, Select } from "@/components/ui/fields";
+import { Card } from "@/components/ui/Card";
+import { IconButton } from "@/components/ui/Icon";
+import { TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+
+const COLS = "grid-cols-[minmax(0,1.4fr)_110px_130px_130px_80px]";
 
 type Dependiente = Awaited<ReturnType<typeof listDependientes>>[number];
 
@@ -42,6 +49,7 @@ function DependienteForm({
   onCancel: () => void;
   submitLabel?: string;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<DependienteInput>({
     nombre: defaultValues?.nombre ?? "",
     parentesco: defaultValues?.parentesco ?? "",
@@ -67,19 +75,20 @@ function DependienteForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Nombre *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-1`}>Nombre *</FieldLabel>
+        <Input
+          id={`${uid}-1`}
           required
           value={form.nombre}
           onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Parentesco</label>
-          <select
+          <FieldLabel htmlFor={`${uid}-2`}>Parentesco</FieldLabel>
+          <Select
+            id={`${uid}-2`}
             value={form.parentesco}
             onChange={(e) =>
               setForm({
@@ -87,7 +96,6 @@ function DependienteForm({
                 parentesco: e.target.value as DependienteInput["parentesco"],
               })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Sin especificar</option>
             {Object.entries(PARENTESCO_LABELS).map(([value, label]) => (
@@ -95,45 +103,43 @@ function DependienteForm({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Fecha de nacimiento</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-3`}>Fecha de nacimiento</FieldLabel>
+          <Input
+            id={`${uid}-3`}
             type="date"
             value={form.fecha_nacimiento}
             onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Cédula</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-4`}>Cédula</FieldLabel>
+        <Input
+          id={`${uid}-4`}
           value={form.cedula}
           onChange={(e) => setForm({ ...form, cedula: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger-700">{error}</p>}
 
-      <div className="flex justify-end gap-3">
-        <button
+      <div className="flex justify-end gap-3 pt-2">
+        <Button
           type="button"
-          onClick={onCancel}
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          onClick={onCancel} variant="ghost"
         >
           Cancelar
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -153,6 +159,7 @@ export function DependientesPanel({
   const [editing, setEditing] = useState<Dependiente | null>(null);
   const [deleting, setDeleting] = useState<Dependiente | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const uid = useId();
   const queryClient = useQueryClient();
 
   const { data: dependientes } = useQuery({
@@ -190,82 +197,77 @@ export function DependientesPanel({
     }
   }
 
+  const total = dependientes?.length ?? 0;
+
   return (
-    <section className="rounded-lg border border-gray-200 bg-white shadow-sm">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left"
+    <Card aria-labelledby={`${uid}-titulo`} className="overflow-hidden">
+      <div
+        className={`flex items-center justify-between gap-3 px-5 py-3.5 ${
+          expanded ? "border-b border-gray-100" : ""
+        }`}
       >
-        <h2 className="text-lg font-semibold">
-          Dependientes ({dependientes?.length ?? 0})
+        <h2 id={`${uid}-titulo`} className="text-[15px] font-semibold text-gray-900">
+          Dependientes ({total})
         </h2>
-        <span className="text-gray-400">{expanded ? "▲" : "▼"}</span>
-      </button>
-
-      {expanded && (
-        <div className="px-5 pb-5 border-t border-gray-100 pt-4">
-          {puedeEditar && (
-            <div className="flex justify-end mb-3">
-              <button
-                onClick={() => setCreating(true)}
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                Agregar dependiente
-              </button>
-            </div>
+        <div className="flex items-center gap-3">
+          {expanded && puedeEditar && (
+            <Button variant="secondary" size="sm" onClick={() => setCreating(true)}>
+              Agregar dependiente
+            </Button>
           )}
+          <IconButton
+            icon={expanded ? "chevronUp" : "chevronDown"}
+            label={expanded ? "Contraer dependientes" : "Expandir dependientes"}
+            aria-expanded={expanded}
+            onClick={() => setExpanded(!expanded)}
+          />
+        </div>
+      </div>
 
-          {dependientes?.length === 0 && (
-            <p className="text-sm text-gray-400">Sin dependientes registrados.</p>
-          )}
+      {expanded && total === 0 && (
+        <p className="px-5 py-5 text-sm text-gray-600">Sin dependientes registrados.</p>
+      )}
 
-          {dependientes && dependientes.length > 0 && (
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left font-medium text-gray-500">Nombre</th>
-                    <th className="px-4 py-2 text-left font-medium text-gray-500">Parentesco</th>
-                    <th className="px-4 py-2 text-left font-medium text-gray-500">
-                      Fecha de nacimiento
-                    </th>
-                    <th className="px-4 py-2 text-left font-medium text-gray-500">Cédula</th>
-                    <th className="px-4 py-2" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {dependientes.map((d) => (
-                    <tr key={d.id}>
-                      <td className="px-4 py-2">{d.nombre}</td>
-                      <td className="px-4 py-2">
-                        {d.parentesco ? (PARENTESCO_LABELS[d.parentesco] ?? d.parentesco) : "—"}
-                      </td>
-                      <td className="px-4 py-2">{formatFecha(d.fecha_nacimiento)}</td>
-                      <td className="px-4 py-2">{d.cedula ?? "—"}</td>
-                      <td className="px-4 py-2 text-right whitespace-nowrap">
-                        {puedeEditar && (
-                          <>
-                            <button
-                              onClick={() => setEditing(d)}
-                              className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => setDeleting(d)}
-                              className="text-sm text-red-600 hover:text-red-800"
-                            >
-                              Eliminar
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      {expanded && dependientes && dependientes.length > 0 && (
+        <div className="overflow-x-auto">
+          <div role="table" aria-label="Dependientes" className="min-w-[640px]">
+            <TableHeader cols={COLS}>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Parentesco</TableHead>
+              <TableHead>Nacimiento</TableHead>
+              <TableHead>Cédula</TableHead>
+              <TableHead srOnly>Acciones</TableHead>
+            </TableHeader>
+            {dependientes.map((d) => (
+              <TableRow key={d.id} cols={COLS}>
+                <TableCell className="truncate font-medium text-gray-900">{d.nombre}</TableCell>
+                <TableCell className="text-gray-600">
+                  {d.parentesco ? (PARENTESCO_LABELS[d.parentesco] ?? d.parentesco) : "—"}
+                </TableCell>
+                <TableCell className="tabular-nums">{formatFecha(d.fecha_nacimiento)}</TableCell>
+                <TableCell className="truncate tabular-nums text-gray-600">
+                  {d.cedula ?? "—"}
+                </TableCell>
+                <TableCell className="flex items-center justify-end gap-1">
+                  {puedeEditar && (
+                    <>
+                      <IconButton
+                        icon="pencil"
+                        label={`Editar ${d.nombre}`}
+                        onClick={() => setEditing(d)}
+                      />
+                      <IconButton
+                        icon="trash"
+                        tone="danger"
+                        label={`Eliminar ${d.nombre}`}
+                        onClick={() => setDeleting(d)}
+                      />
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </div>
         </div>
       )}
 
@@ -301,6 +303,6 @@ export function DependientesPanel({
         onConfirm={handleDelete}
         onCancel={() => setDeleting(null)}
       />
-    </section>
+    </Card>
   );
 }

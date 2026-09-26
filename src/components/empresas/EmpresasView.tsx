@@ -6,8 +6,22 @@ import type { Database } from "@/lib/types/database.types";
 import { createEmpresa, setEmpresaActiva, type EmpresaInput } from "@/lib/actions/empresas";
 import { Modal } from "@/components/ui/Modal";
 import { EmpresaForm } from "./EmpresaForm";
+import { Button } from "@/components/ui/Button";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Badge } from "@/components/ui/Badge";
+import { initialsOf } from "@/components/ui/Avatar";
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableMessage,
+  TableRow,
+} from "@/components/ui/Table";
 
 type Empresa = Database["public"]["Tables"]["empresas"]["Row"];
+
+const COLS = "grid-cols-[minmax(0,2fr)_150px_150px_120px]";
 
 function formatFecha(fecha: string) {
   return new Intl.DateTimeFormat("es").format(new Date(fecha));
@@ -27,66 +41,55 @@ export function EmpresasView({ empresas }: { empresas: Empresa[] }) {
     router.refresh();
   }
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Empresas</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Nueva empresa
-        </button>
-      </div>
+  const activas = empresas.filter((e) => e.activa).length;
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Nombre</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Estado</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Creada</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {empresas.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
-                  No hay empresas todavía.
-                </td>
-              </tr>
-            )}
-            {empresas.map((empresa) => (
-              <tr key={empresa.id}>
-                <td className="px-4 py-2 font-medium">{empresa.nombre}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      empresa.activa
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {empresa.activa ? "Activa" : "Desactivada"}
-                  </span>
-                </td>
-                <td className="px-4 py-2 hidden sm:table-cell">
-                  {formatFecha(empresa.created_at)}
-                </td>
-                <td className="px-4 py-2 text-right">
-                  <button
-                    onClick={() => handleToggleActiva(empresa)}
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    {empresa.activa ? "Desactivar" : "Activar"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Empresas"
+        description={`${empresas.length} ${empresas.length === 1 ? "empresa" : "empresas"} · ${activas} ${activas === 1 ? "activa" : "activas"}`}
+        actions={<Button onClick={() => setCreating(true)}>Nueva empresa</Button>}
+      />
+
+      <Table label="Empresas" minWidth="min-w-[640px]">
+        <TableHeader cols={COLS}>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Estado</TableHead>
+          <TableHead>Creada</TableHead>
+          <TableHead srOnly>Acciones</TableHead>
+        </TableHeader>
+        {empresas.length === 0 && <TableMessage>No hay empresas todavía.</TableMessage>}
+        {empresas.map((empresa) => (
+          <TableRow key={empresa.id} cols={COLS}>
+            <TableCell className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-blue-50 text-[13px] font-bold text-blue-700"
+              >
+                {initialsOf(empresa.nombre)}
+              </span>
+              <span className="truncate font-semibold text-gray-900">{empresa.nombre}</span>
+            </TableCell>
+            <TableCell>
+              <Badge tone={empresa.activa ? "green" : "neutral"}>
+                {empresa.activa ? "Activa" : "Desactivada"}
+              </Badge>
+            </TableCell>
+            <TableCell className="tabular-nums text-gray-600">
+              {formatFecha(empresa.created_at)}
+            </TableCell>
+            <TableCell className="flex justify-end">
+              <Button
+                size="sm"
+                variant={empresa.activa ? "dangerOutline" : "secondary"}
+                onClick={() => handleToggleActiva(empresa)}
+              >
+                {empresa.activa ? "Desactivar" : "Activar"}
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </Table>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Nueva empresa">
         <EmpresaForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />

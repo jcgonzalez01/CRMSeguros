@@ -1,8 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { useComisiones, type ComisionPoliza } from "@/lib/hooks/useComisiones";
 import type { MonedaPoliza } from "@/lib/types/database.types";
+import { Input, Select } from "@/components/ui/fields";
+import { Card, CardHeader } from "@/components/ui/Card";
+import {
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableMessage,
+  TableRow,
+} from "@/components/ui/Table";
+
+const COLS_RESUMEN = "grid-cols-[minmax(0,2fr)_120px_180px_160px]";
+const COLS_DETALLE =
+  "grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(0,1.8fr)_110px_130px_180px]";
 
 const MONEDA_LOCALE: Record<MonedaPoliza, string> = { DOP: "es-DO", USD: "en-US" };
 
@@ -50,6 +63,7 @@ export function ComisionesView({
   initialPolizas: ComisionPoliza[];
   propietarios: Propietario[];
 }) {
+  const uid = useId();
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
   const [propietarioId, setPropietarioId] = useState("");
@@ -63,138 +77,163 @@ export function ComisionesView({
 
   const resumen = useMemo(() => agruparPorCorredor(polizas ?? []), [polizas]);
 
+  const maxPorMoneda = useMemo(() => {
+    const max: Partial<Record<MonedaPoliza, number>> = {};
+    for (const f of resumen) max[f.moneda] = Math.max(max[f.moneda] ?? 0, f.total);
+    return max;
+  }, [resumen]);
+
   return (
-    <div>
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold">Comisiones</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Seguimiento de qué pólizas vende cada corredor y su comisión.
-        </p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-lg font-semibold text-gray-900">Comisiones</h2>
+          <p className="text-sm text-gray-600">
+            Seguimiento de qué pólizas vende cada corredor y su comisión.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${uid}-1`} className="text-xs font-medium text-gray-600">
+              Emitidas desde
+            </label>
+            <Input
+              id={`${uid}-1`}
+              type="date"
+              value={desde}
+              onChange={(e) => setDesde(e.target.value)}
+              fullWidth={false}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${uid}-2`} className="text-xs font-medium text-gray-600">
+              Hasta
+            </label>
+            <Input
+              id={`${uid}-2`}
+              type="date"
+              value={hasta}
+              onChange={(e) => setHasta(e.target.value)}
+              fullWidth={false}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor={`${uid}-3`} className="text-xs font-medium text-gray-600">
+              Corredor
+            </label>
+            <Select
+              id={`${uid}-3`}
+              value={propietarioId}
+              onChange={(e) => setPropietarioId(e.target.value)}
+              fullWidth={false}
+            >
+              <option value="">Todos los corredores</option>
+              {propietarios.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.full_name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
-        <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">Emitidas desde</label>
-          <input
-            type="date"
-            value={desde}
-            onChange={(e) => setDesde(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">Hasta</label>
-          <input
-            type="date"
-            value={hasta}
-            onChange={(e) => setHasta(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs text-gray-500 mb-1">Corredor</label>
-          <select
-            value={propietarioId}
-            onChange={(e) => setPropietarioId(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Todos los corredores</option>
-            {propietarios.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.full_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Corredor</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Pólizas</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Comisión total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
+      <Card aria-labelledby={`${uid}-resumen`} className="overflow-hidden">
+        <CardHeader id={`${uid}-resumen`} title="Resumen por corredor" />
+        <div className="overflow-x-auto">
+          <div role="table" aria-label="Resumen por corredor" className="min-w-[720px]">
+            <TableHeader cols={COLS_RESUMEN}>
+              <TableHead>Corredor</TableHead>
+              <TableHead className="text-right">Pólizas</TableHead>
+              <TableHead className="text-right">Comisión total</TableHead>
+              <TableHead>Participación</TableHead>
+            </TableHeader>
             {resumen.length === 0 && (
-              <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-gray-400">
-                  Sin comisiones registradas en este periodo.
-                </td>
-              </tr>
+              <TableMessage>Sin comisiones registradas en este periodo.</TableMessage>
             )}
-            {resumen.map((fila) => (
-              <tr key={`${fila.corredor}-${fila.moneda}`}>
-                <td className="px-4 py-2 font-medium">{fila.corredor}</td>
-                <td className="px-4 py-2">{fila.cantidad}</td>
-                <td className="px-4 py-2 font-medium">
-                  {formatMonto(fila.total, fila.moneda)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            {resumen.map((fila) => {
+              const max = maxPorMoneda[fila.moneda] ?? 0;
+              const pct = max > 0 ? Math.round((fila.total / max) * 100) : 0;
+              return (
+                <TableRow key={`${fila.corredor}-${fila.moneda}`} cols={COLS_RESUMEN}>
+                  <TableCell className="truncate font-semibold text-gray-900">
+                    {fila.corredor}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{fila.cantidad}</TableCell>
+                  <TableCell className="text-right font-semibold tabular-nums text-gray-900">
+                    {formatMonto(fila.total, fila.moneda)}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      aria-hidden="true"
+                      className="block h-2 overflow-hidden rounded bg-gray-200"
+                    >
+                      <span
+                        className="block h-full bg-blue-600"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
 
-      <h2 className="text-lg font-semibold mb-2">Detalle por póliza</h2>
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Corredor</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Cliente</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden md:table-cell">Póliza</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Emisión</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Monto póliza</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Comisión</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
-                  Cargando…
-                </td>
-              </tr>
-            )}
+      <Card aria-labelledby={`${uid}-detalle`} className="overflow-hidden">
+        <CardHeader id={`${uid}-detalle`} title="Detalle por póliza" />
+        <div className="overflow-x-auto">
+          <div role="table" aria-label="Detalle por póliza" className="min-w-[1000px]">
+            <TableHeader cols={COLS_DETALLE}>
+              <TableHead>Corredor</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Póliza</TableHead>
+              <TableHead>Emisión</TableHead>
+              <TableHead className="text-right">Monto póliza</TableHead>
+              <TableHead className="text-right">Comisión</TableHead>
+            </TableHeader>
+            {isLoading && <TableMessage>Cargando…</TableMessage>}
             {!isLoading && polizas?.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">
-                  No se encontraron pólizas en este periodo.
-                </td>
-              </tr>
+              <TableMessage>No se encontraron pólizas en este periodo.</TableMessage>
             )}
             {polizas?.map((p) => (
-              <tr key={p.id}>
-                <td className="px-4 py-2">{p.propietario?.full_name ?? "Sin asignar"}</td>
-                <td className="px-4 py-2 hidden sm:table-cell">{p.cliente?.nombre ?? "—"}</td>
-                <td className="px-4 py-2 hidden md:table-cell">
-                  {p.numero_poliza} · {p.aseguradora?.nombre ?? "—"}
-                </td>
-                <td className="px-4 py-2">{formatFecha(p.fecha_emision)}</td>
-                <td className="px-4 py-2 hidden sm:table-cell">
+              <TableRow key={p.id} cols={COLS_DETALLE}>
+                <TableCell className="truncate text-gray-600">
+                  {p.propietario?.full_name ?? "Sin asignar"}
+                </TableCell>
+                <TableCell className="truncate font-medium text-gray-900">
+                  {p.cliente?.nombre ?? "—"}
+                </TableCell>
+                <TableCell className="truncate">
+                  <span className="font-mono text-[13px] text-blue-700">{p.numero_poliza}</span>
+                  <span className="text-gray-600"> · {p.aseguradora?.nombre ?? "—"}</span>
+                </TableCell>
+                <TableCell className="tabular-nums">{formatFecha(p.fecha_emision)}</TableCell>
+                <TableCell className="text-right tabular-nums">
                   {formatMonto(p.monto, p.moneda)}
-                </td>
-                <td className="px-4 py-2">
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
                   {p.comision_monto === null ? (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-gray-600">—</span>
                   ) : (
                     <>
-                      {formatMonto(p.comision_monto, p.moneda)}
-                      <span className="text-gray-400">
+                      <span className="font-semibold text-gray-900">
+                        {formatMonto(p.comision_monto, p.moneda)}
+                      </span>
+                      <span className="text-gray-600">
                         {" "}
                         ({p.comision_tipo === "porcentaje" ? `${p.comision_valor}%` : "fijo"})
                       </span>
                     </>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

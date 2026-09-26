@@ -17,6 +17,20 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OportunidadForm } from "./OportunidadForm";
 import { PolizaForm, type Option } from "@/components/polizas/PolizaForm";
 import { TareaForm } from "@/components/tareas/TareaForm";
+import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/fields";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { IconButton } from "@/components/ui/Icon";
+import { PageHeader } from "@/components/ui/PageHeader";
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableMessage,
+  TableRow,
+} from "@/components/ui/Table";
 
 function formatMonto(monto: number | null) {
   if (monto === null) return "—";
@@ -25,11 +39,17 @@ function formatMonto(monto: number | null) {
   );
 }
 
-const ESTADO_BADGE: Record<OpportunityStatus, string> = {
-  abierta: "bg-blue-100 text-blue-800",
-  ganada: "bg-green-100 text-green-800",
-  perdida: "bg-red-100 text-red-800",
+const ESTADO_TONE: Record<OpportunityStatus, BadgeTone> = {
+  abierta: "blue",
+  ganada: "green",
+  perdida: "red",
 };
+
+const COLS =
+  "grid-cols-[44px_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1.2fr)_120px_140px_280px]";
+
+const LINK_ACTION = "text-[13px] font-semibold text-blue-700 hover:underline";
+const LINK_DIALOG = "text-sm font-semibold text-blue-700 hover:underline";
 
 const ESTADO_LABELS: Record<OpportunityStatus, string> = {
   abierta: "Abierta",
@@ -55,6 +75,23 @@ const MES_LABELS = [
 // the pipeline — either way, every opportunity lands in exactly one month.
 function fechaEfectiva(o: OportunidadListItem): Date {
   return new Date((o.fecha_cierre ?? o.created_at).slice(0, 10) + "T00:00:00");
+}
+
+function DetailItem({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={["flex min-w-0 flex-col gap-[3px]", className].filter(Boolean).join(" ")}>
+      <dt className="text-xs font-medium text-gray-600">{label}</dt>
+      <dd className="m-0 text-sm font-medium leading-normal text-gray-900">{children}</dd>
+    </div>
+  );
 }
 
 export function OportunidadesView({
@@ -163,50 +200,59 @@ export function OportunidadesView({
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Oportunidades</h1>
-        {puedeEditar && (
-          <button
-            onClick={() => setCreating(true)}
-            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Nueva oportunidad
-          </button>
-        )}
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Oportunidades"
+        description="Seguimiento de tu pipeline de ventas"
+        actions={
+          puedeEditar && (
+            <Button type="button" onClick={() => setCreating(true)}>
+              Nueva oportunidad
+            </Button>
+          )
+        }
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+      <section
+        aria-label="Resumen por estado"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+      >
         {(["abierta", "ganada", "perdida"] as const).map((key) => (
-          <div key={key} className="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
-            <p className="text-sm text-gray-500">{ESTADO_LABELS[key]}</p>
-            <p className="text-xl font-semibold">{totales[key].cantidad}</p>
-            <p className="text-sm text-gray-500">{formatMonto(totales[key].monto)}</p>
-          </div>
+          <Card key={key} className="flex flex-col items-start gap-2 px-[22px] py-[18px]">
+            <Badge tone={ESTADO_TONE[key]}>{ESTADO_LABELS[key]}</Badge>
+            <div className="flex flex-wrap items-baseline gap-x-3">
+              <span className="text-[32px] font-semibold tracking-tight tabular-nums">
+                {totales[key].cantidad}
+              </span>
+              <span className="text-sm tabular-nums text-gray-600">
+                {formatMonto(totales[key].monto)}
+              </span>
+            </div>
+          </Card>
         ))}
-      </div>
+      </section>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
-        <input
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Input
+          aria-label="Buscar por título"
           placeholder="Buscar por título…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setSearch(e.target.value)} fullWidth={false} className="min-w-0 flex-1"
         />
-        <select
+        <Select
+          aria-label="Todos los estados"
           value={estado}
-          onChange={(e) => setEstado(e.target.value as OpportunityStatus | "")}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setEstado(e.target.value as OpportunityStatus | "")} fullWidth={false}
         >
           <option value="">Todos los estados</option>
           <option value="abierta">Abierta</option>
           <option value="ganada">Ganada</option>
           <option value="perdida">Perdida</option>
-        </select>
-        <select
+        </Select>
+        <Select
+          aria-label="Todos los meses"
           value={mes}
-          onChange={(e) => setMes(e.target.value ? Number(e.target.value) : "")}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setMes(e.target.value ? Number(e.target.value) : "")} fullWidth={false}
         >
           <option value="">Todos los meses</option>
           {MES_LABELS.map((label, i) => (
@@ -214,11 +260,11 @@ export function OportunidadesView({
               {label}
             </option>
           ))}
-        </select>
-        <select
+        </Select>
+        <Select
+          aria-label="Todos los años"
           value={año}
-          onChange={(e) => setAño(e.target.value ? Number(e.target.value) : "")}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setAño(e.target.value ? Number(e.target.value) : "")} fullWidth={false}
         >
           <option value="">Todos los años</option>
           {añosDisponibles.map((a) => (
@@ -226,106 +272,96 @@ export function OportunidadesView({
               {a}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 w-10">#</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Título</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden sm:table-cell">Cliente</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 hidden md:table-cell">Propietario</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Monto</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500">Estado</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {isLoading && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
-                  Cargando…
-                </td>
-              </tr>
-            )}
-            {!isLoading && oportunidadesFiltradas?.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
-                  No se encontraron oportunidades.
-                </td>
-              </tr>
-            )}
-            {oportunidadesFiltradas?.map((o, index) => (
-              <tr
-                key={o.id}
+      <Table label="Oportunidades" minWidth="min-w-[1120px]">
+        <TableHeader cols={COLS}>
+          <TableHead>#</TableHead>
+          <TableHead>Título</TableHead>
+          <TableHead>Cliente</TableHead>
+          <TableHead>Propietario</TableHead>
+          <TableHead className="text-right">Monto</TableHead>
+          <TableHead>Estado</TableHead>
+          <TableHead srOnly>Acciones</TableHead>
+        </TableHeader>
+        {isLoading && <TableMessage>Cargando…</TableMessage>}
+        {!isLoading && oportunidadesFiltradas?.length === 0 && (
+          <TableMessage>No se encontraron oportunidades.</TableMessage>
+        )}
+        {oportunidadesFiltradas?.map((o, index) => (
+          <TableRow
+            key={o.id}
+            cols={COLS}
+            onClick={() => setViewing(o)}
+            className="cursor-pointer hover:bg-gray-50"
+          >
+            <TableCell className="tabular-nums text-gray-600">{index + 1}</TableCell>
+            <TableCell>
+              <button
+                type="button"
                 onClick={() => setViewing(o)}
-                className="cursor-pointer hover:bg-gray-50"
+                className="max-w-full truncate text-left font-semibold text-blue-700 hover:underline"
               >
-                <td className="px-4 py-2 text-gray-400">{index + 1}</td>
-                <td className="px-4 py-2 text-blue-600 hover:text-blue-800 hover:underline">
-                  {o.titulo}
-                </td>
-                <td className="px-4 py-2 hidden sm:table-cell">{o.cliente?.nombre ?? "—"}</td>
-                <td className="px-4 py-2 hidden md:table-cell">
-                  {o.propietario?.full_name ?? "—"}
-                </td>
-                <td className="px-4 py-2">{formatMonto(o.monto_estimado)}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${ESTADO_BADGE[o.estado]}`}
-                  >
-                    {ESTADO_LABELS[o.estado]}
+                {o.titulo}
+              </button>
+            </TableCell>
+            <TableCell className="truncate">{o.cliente?.nombre ?? "—"}</TableCell>
+            <TableCell className="truncate text-gray-600">
+              {o.propietario?.full_name ?? "—"}
+            </TableCell>
+            <TableCell className="text-right font-semibold tabular-nums">
+              {formatMonto(o.monto_estimado)}
+            </TableCell>
+            <TableCell>
+              <div className="flex flex-col items-start gap-1">
+                <Badge tone={ESTADO_TONE[o.estado]}>{ESTADO_LABELS[o.estado]}</Badge>
+                {o.estado === "perdida" && o.motivo_perdida && (
+                  <span className="text-xs text-gray-600">
+                    {MOTIVO_PERDIDA_LABELS[o.motivo_perdida] ?? o.motivo_perdida}
                   </span>
-                  {o.estado === "perdida" && o.motivo_perdida && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {MOTIVO_PERDIDA_LABELS[o.motivo_perdida] ?? o.motivo_perdida}
-                    </p>
-                  )}
-                </td>
-                <td
-                  className="px-4 py-2 text-right whitespace-nowrap"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {puedeEditarPolizas && (
-                    <button
-                      onClick={() => setCreatingPolizaFrom(o)}
-                      className="text-sm text-blue-600 hover:text-blue-800 mr-3"
-                    >
-                      Crear póliza
-                    </button>
-                  )}
-                  {puedeEditarTareas && (
-                    <button
-                      onClick={() => setCreatingTareaFrom(o)}
-                      className="text-sm text-blue-600 hover:text-blue-800 mr-3"
-                    >
-                      Nueva tarea
-                    </button>
-                  )}
-                  {puedeEditar && (
-                    <>
-                      <button
-                        onClick={() => setEditing(o)}
-                        className="text-sm text-gray-600 hover:text-gray-900 mr-3"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => setDeleting(o)}
-                        className="text-sm text-red-600 hover:text-red-800"
-                      >
-                        Eliminar
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                )}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div
+                className="flex items-center justify-end gap-1 whitespace-nowrap"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {puedeEditarPolizas && (
+                  <button
+                    type="button"
+                    onClick={() => setCreatingPolizaFrom(o)}
+                    className={`${LINK_ACTION} mr-2`}
+                  >
+                    Crear póliza
+                  </button>
+                )}
+                {puedeEditarTareas && (
+                  <button
+                    type="button"
+                    onClick={() => setCreatingTareaFrom(o)}
+                    className={`${LINK_ACTION} mr-2`}
+                  >
+                    Nueva tarea
+                  </button>
+                )}
+                {puedeEditar && (
+                  <>
+                    <IconButton icon="pencil" label="Editar oportunidad" onClick={() => setEditing(o)} />
+                    <IconButton
+                      icon="trash"
+                      tone="danger"
+                      label="Eliminar oportunidad"
+                      onClick={() => setDeleting(o)}
+                    />
+                  </>
+                )}
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </Table>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Nueva oportunidad">
         <OportunidadForm
@@ -365,88 +401,74 @@ export function OportunidadesView({
         title={viewing?.titulo ?? ""}
       >
         {viewing && (
-          <div className="space-y-3 text-sm">
-            <div>
-              <p className="text-gray-500">Cliente</p>
-              <p className="font-medium">{viewing.cliente?.nombre ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Propietario</p>
-              <p className="font-medium">{viewing.propietario?.full_name ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Monto</p>
-              <p className="font-medium">{formatMonto(viewing.monto_estimado)}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Estado</p>
-              <span
-                className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${ESTADO_BADGE[viewing.estado]}`}
-              >
-                {ESTADO_LABELS[viewing.estado]}
-              </span>
-            </div>
-            {viewing.estado === "perdida" && viewing.motivo_perdida && (
-              <div>
-                <p className="text-gray-500">Motivo de pérdida</p>
-                <p className="font-medium">
-                  {MOTIVO_PERDIDA_LABELS[viewing.motivo_perdida] ?? viewing.motivo_perdida}
-                </p>
-              </div>
-            )}
-            {viewing.notas && (
-              <div>
-                <p className="text-gray-500">Notas</p>
-                <p className="whitespace-pre-wrap">{viewing.notas}</p>
-              </div>
-            )}
-            <div>
-              <p className="text-gray-500">Creada</p>
-              <p className="font-medium">
+          <div className="flex flex-col gap-5">
+            <dl className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+              <DetailItem label="Cliente">{viewing.cliente?.nombre ?? "—"}</DetailItem>
+              <DetailItem label="Propietario">{viewing.propietario?.full_name ?? "—"}</DetailItem>
+              <DetailItem label="Monto">
+                <span className="tabular-nums">{formatMonto(viewing.monto_estimado)}</span>
+              </DetailItem>
+              <DetailItem label="Creada">
                 {new Date(viewing.created_at).toLocaleDateString("es-DO")}
-              </p>
-            </div>
-            {viewing.fecha_cierre && (
-              <div>
-                <p className="text-gray-500">Fecha de cierre</p>
-                <p className="font-medium">
-                  {new Date(viewing.fecha_cierre).toLocaleDateString("es-DO")}
-                </p>
+              </DetailItem>
+              <div className="flex flex-col items-start gap-1">
+                <dt className="text-xs font-medium text-gray-600">Estado</dt>
+                <dd>
+                  <Badge tone={ESTADO_TONE[viewing.estado]}>{ESTADO_LABELS[viewing.estado]}</Badge>
+                </dd>
               </div>
-            )}
-            <div className="flex justify-end gap-3 pt-2">
+              {viewing.fecha_cierre && (
+                <DetailItem label="Fecha de cierre">
+                  {new Date(viewing.fecha_cierre).toLocaleDateString("es-DO")}
+                </DetailItem>
+              )}
+              {viewing.estado === "perdida" && viewing.motivo_perdida && (
+                <DetailItem label="Motivo de pérdida">
+                  {MOTIVO_PERDIDA_LABELS[viewing.motivo_perdida] ?? viewing.motivo_perdida}
+                </DetailItem>
+              )}
+              {viewing.notas && (
+                <DetailItem label="Notas" className="sm:col-span-2">
+                  <span className="whitespace-pre-wrap">{viewing.notas}</span>
+                </DetailItem>
+              )}
+            </dl>
+            <div className="flex items-center justify-end gap-4 border-t border-gray-100 pt-4">
               {puedeEditarTareas && (
                 <button
+                  type="button"
                   onClick={() => {
                     setCreatingTareaFrom(viewing);
                     setViewing(null);
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className={LINK_DIALOG}
                 >
                   Nueva tarea
                 </button>
               )}
               {puedeEditarPolizas && (
                 <button
+                  type="button"
                   onClick={() => {
                     setCreatingPolizaFrom(viewing);
                     setViewing(null);
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className={LINK_DIALOG}
                 >
                   Crear póliza
                 </button>
               )}
               {puedeEditar && (
-                <button
+                <Button
+                  type="button"
+                  variant="secondary"
                   onClick={() => {
                     setEditing(viewing);
                     setViewing(null);
                   }}
-                  className="text-sm text-gray-600 hover:text-gray-900"
                 >
                   Editar
-                </button>
+                </Button>
               )}
             </div>
           </div>

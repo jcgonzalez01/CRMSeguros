@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import type { InviteInput } from "@/lib/actions/equipo";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input, Select } from "@/components/ui/fields";
 
 export function InviteForm({
   onSubmit,
@@ -10,6 +12,7 @@ export function InviteForm({
   onSubmit: (input: InviteInput) => Promise<void>;
   onCancel: () => void;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<InviteInput>({
     email: "",
     fullName: "",
@@ -36,17 +39,14 @@ export function InviteForm({
   if (success) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-green-700">
+        <p className="text-sm text-success-700">
           Invitación enviada a {form.email}. Recibirá un correo para crear su
           contraseña.
         </p>
         <div className="flex justify-end">
-          <button
-            onClick={onCancel}
-            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <Button type="button" onClick={onCancel}>
             Cerrar
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -55,63 +55,63 @@ export function InviteForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Nombre completo *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-1`}>Nombre completo *</FieldLabel>
+        <Input
+          id={`${uid}-1`}
           required
           value={form.fullName}
           onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Correo *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-2`}>Correo *</FieldLabel>
+        <Input
+          id={`${uid}-2`}
           type="email"
           required
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Rol *</label>
-        <select
+        <FieldLabel htmlFor={`${uid}-3`}>Rol *</FieldLabel>
+        <Select
+          id={`${uid}-3`}
           value={form.role}
           onChange={(e) =>
             setForm({ ...form, role: e.target.value as InviteInput["role"] })
           }
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="Corredor">Corredor</option>
           <option value="Gerente">Gerente</option>
           <option value="Admin">Admin</option>
-        </select>
-        <p className="text-xs text-gray-400 mt-1">
-          Corredor: ve solo sus propias oportunidades, tareas y pólizas.
-          Admin y Gerente ven y asignan todo; solo Admin gestiona el
-          equipo.
-        </p>
+        </Select>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <p className="rounded-[10px] border border-gray-100 bg-gray-50 p-3 text-[13px] text-gray-600">
+        Corredor: ve solo sus propias oportunidades, tareas y pólizas.
+        Admin y Gerente ven y asignan todo; solo Admin gestiona el
+        equipo.
+      </p>
 
-      <div className="flex justify-end gap-3">
-        <button
+      {error && <p className="text-sm text-danger-700">{error}</p>}
+
+      <div className="flex justify-end gap-3 pt-2">
+        <Button
           type="button"
+          variant="ghost"
           onClick={onCancel}
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
           Cancelar
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {loading ? "Enviando…" : "Enviar invitación"}
-        </button>
+        </Button>
       </div>
     </form>
   );

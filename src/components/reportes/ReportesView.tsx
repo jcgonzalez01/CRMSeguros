@@ -6,6 +6,10 @@ import type { ComisionPoliza } from "@/lib/hooks/useComisiones";
 import type { MonedaPoliza } from "@/lib/types/database.types";
 import { BarChart, type BarChartDatum } from "./BarChart";
 import { StatTileDelta } from "./StatTileDelta";
+import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Segmented, Tabs } from "@/components/ui/Tabs";
+import { Select } from "@/components/ui/fields";
 import { ComisionesView } from "@/components/comisiones/ComisionesView";
 
 const RANGOS = [
@@ -79,66 +83,67 @@ export function ReportesView({
     return { polizas, primas, clientes, conversion };
   }, [filas, monedaPrimas]);
 
-  return (
-    <div>
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold">Reportes</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Tendencias del negocio y comisiones por corredor.
-        </p>
-      </div>
+  const grafica = (
+    titulo: string,
+    data: BarChartDatum[],
+    color: string,
+    formatValue: (v: number) => string
+  ) => {
+    const ultimo = data[data.length - 1];
+    return (
+      <Card className="flex flex-col gap-3.5 px-[22px] pb-4 pt-[18px]">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-[15px] font-semibold text-gray-900">{titulo}</h2>
+          {ultimo && (
+            <span className="text-xs text-gray-600">
+              Último mes: {formatValue(ultimo.value)}
+            </span>
+          )}
+        </div>
+        <BarChart data={data} color={color} formatValue={formatValue} />
+      </Card>
+    );
+  };
 
-      <div className="flex gap-1 mb-6 border-b border-gray-200">
-        {(
-          [
-            { key: "tendencias", label: "Tendencias" },
-            { key: "comisiones", label: "Comisiones" },
-          ] as const
-        ).map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
-              tab === t.key
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Reportes"
+        description="Tendencias del negocio y comisiones por corredor."
+      />
+
+      <Tabs
+        label="Secciones de reportes"
+        items={[
+          { value: "tendencias", label: "Tendencias" },
+          { value: "comisiones", label: "Comisiones" },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
 
       {tab === "tendencias" && (
-        <div>
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
-            <div className="flex rounded-md border border-gray-300 overflow-hidden w-fit">
-              {RANGOS.map((r) => (
-                <button
-                  key={r.meses}
-                  onClick={() => setMeses(r.meses)}
-                  className={`px-3 py-1.5 text-sm font-medium ${
-                    meses === r.meses
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-            <select
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <Segmented
+              label="Periodo"
+              items={RANGOS.map((r) => ({ value: r.meses, label: r.label }))}
+              value={meses}
+              onChange={setMeses}
+            />
+            <Select
+              aria-label="Moneda de las primas"
               value={monedaPrimas}
               onChange={(e) => setMonedaPrimas(e.target.value as MonedaPoliza)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-fit"
+              fullWidth={false}
             >
               <option value="DOP">Primas en RD$</option>
               <option value="USD">Primas en US$</option>
-            </select>
+            </Select>
           </div>
 
           {actual && anterior && (
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-5">
               <StatTileDelta
                 label="Pólizas vendidas"
                 value={String(actual.polizas_vendidas)}
@@ -172,40 +177,11 @@ export function ReportesView({
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">
-                Pólizas vendidas por mes
-              </h2>
-              <BarChart data={charts.polizas} color="#2a78d6" formatValue={(v) => String(v)} />
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">Primas por mes</h2>
-              <BarChart
-                data={charts.primas}
-                color="#1baf7a"
-                formatValue={(v) => formatMonto(v, monedaPrimas)}
-              />
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">
-                Clientes nuevos por mes
-              </h2>
-              <BarChart data={charts.clientes} color="#eda100" formatValue={(v) => String(v)} />
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">
-                Tasa de conversión por mes
-              </h2>
-              <BarChart
-                data={charts.conversion}
-                color="#4a3aa7"
-                formatValue={(v) => `${v}%`}
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {grafica("Pólizas vendidas por mes", charts.polizas, "#2a78d6", (v) => String(v))}
+            {grafica("Primas por mes", charts.primas, "#1baf7a", (v) => formatMonto(v, monedaPrimas))}
+            {grafica("Clientes nuevos por mes", charts.clientes, "#eda100", (v) => String(v))}
+            {grafica("Tasa de conversión por mes", charts.conversion, "#4a3aa7", (v) => `${v}%`)}
           </div>
         </div>
       )}

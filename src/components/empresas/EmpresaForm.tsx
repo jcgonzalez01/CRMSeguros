@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import type { EmpresaInput } from "@/lib/actions/empresas";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input } from "@/components/ui/fields";
 
 export function EmpresaForm({
   onSubmit,
@@ -10,6 +12,7 @@ export function EmpresaForm({
   onSubmit: (input: EmpresaInput) => Promise<void>;
   onCancel: () => void;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<EmpresaInput>({
     nombre: "",
     adminEmail: "",
@@ -36,17 +39,14 @@ export function EmpresaForm({
   if (success) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-green-700">
+        <p className="text-sm text-success-700">
           Empresa &quot;{form.nombre}&quot; creada. Se envió una invitación a{" "}
           {form.adminEmail} para que cree su contraseña y entre como Admin.
         </p>
         <div className="flex justify-end">
-          <button
-            onClick={onCancel}
-            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <Button type="button" onClick={onCancel}>
             Cerrar
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -55,59 +55,58 @@ export function EmpresaForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Nombre de la empresa *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-1`}>Nombre de la empresa *</FieldLabel>
+        <Input
+          id={`${uid}-1`}
           required
           value={form.nombre}
           onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="border-t border-gray-100 pt-4">
-        <p className="text-xs font-medium text-gray-500 mb-3">
+        <p className="mb-3 text-[13px] font-medium text-gray-600">
           Primer administrador de la empresa
         </p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nombre completo *</label>
-            <input
+            <FieldLabel htmlFor={`${uid}-2`}>Nombre completo *</FieldLabel>
+            <Input
+              id={`${uid}-2`}
               required
               value={form.adminFullName}
               onChange={(e) => setForm({ ...form, adminFullName: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Correo *</label>
-            <input
+            <FieldLabel htmlFor={`${uid}-3`}>Correo *</FieldLabel>
+            <Input
+              id={`${uid}-3`}
               type="email"
               required
               value={form.adminEmail}
               onChange={(e) => setForm({ ...form, adminEmail: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger-700">{error}</p>}
 
-      <div className="flex justify-end gap-3">
-        <button
+      <div className="flex justify-end gap-3 pt-2">
+        <Button
           type="button"
+          variant="ghost"
           onClick={onCancel}
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
           Cancelar
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {loading ? "Creando…" : "Crear empresa"}
-        </button>
+        </Button>
       </div>
     </form>
   );

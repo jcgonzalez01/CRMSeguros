@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import type { ClienteInput } from "@/lib/actions/clientes";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input, Select, Textarea } from "@/components/ui/fields";
 
 export interface ProfileOption {
   id: string;
@@ -31,6 +33,7 @@ export function ClienteForm({
   onCancel: () => void;
   submitLabel?: string;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<ClienteInput>({
     nombre: defaultValues?.nombre ?? "",
     telefono: defaultValues?.telefono ?? "",
@@ -63,73 +66,73 @@ export function ClienteForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Nombre *</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-1`}>Nombre *</FieldLabel>
+        <Input
+          id={`${uid}-1`}
           required
           value={form.nombre}
           onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Teléfono</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-2`}>Teléfono</FieldLabel>
+          <Input
+            id={`${uid}-2`}
             value={form.telefono}
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Correo</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-3`}>Correo</FieldLabel>
+          <Input
+            id={`${uid}-3`}
             type="email"
             value={form.correo}
             onChange={(e) => setForm({ ...form, correo: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Cédula/RNC</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-4`}>Cédula/RNC</FieldLabel>
+          <Input
+            id={`${uid}-4`}
             value={form.cedula}
             onChange={(e) => setForm({ ...form, cedula: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Fecha de nacimiento</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-5`}>Fecha de nacimiento</FieldLabel>
+          <Input
+            id={`${uid}-5`}
             type="date"
             value={form.fecha_nacimiento}
             onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Dirección</label>
-        <input
+        <FieldLabel htmlFor={`${uid}-6`}>Dirección</FieldLabel>
+        <Input
+          id={`${uid}-6`}
           value={form.direccion}
           onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Sexo</label>
-          <select
+          <FieldLabel htmlFor={`${uid}-7`}>Sexo</FieldLabel>
+          <Select
+            id={`${uid}-7`}
             value={form.sexo}
             onChange={(e) =>
               setForm({ ...form, sexo: e.target.value as ClienteInput["sexo"] })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Sin especificar</option>
             {Object.entries(SEXO_LABELS).map(([value, label]) => (
@@ -137,11 +140,12 @@ export function ClienteForm({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Estado civil</label>
-          <select
+          <FieldLabel htmlFor={`${uid}-8`}>Estado civil</FieldLabel>
+          <Select
+            id={`${uid}-8`}
             value={form.estado_civil}
             onChange={(e) =>
               setForm({
@@ -149,7 +153,6 @@ export function ClienteForm({
                 estado_civil: e.target.value as ClienteInput["estado_civil"],
               })
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Sin especificar</option>
             {Object.entries(ESTADO_CIVIL_LABELS).map(([value, label]) => (
@@ -157,26 +160,26 @@ export function ClienteForm({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Ocupación</label>
-          <input
+          <FieldLabel htmlFor={`${uid}-9`}>Ocupación</FieldLabel>
+          <Input
+            id={`${uid}-9`}
             value={form.ocupacion}
             onChange={(e) => setForm({ ...form, ocupacion: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Propietario</label>
-        <select
+        <FieldLabel htmlFor={`${uid}-10`}>Propietario</FieldLabel>
+        <Select
+          id={`${uid}-10`}
           value={form.propietario_id}
           onChange={(e) =>
             setForm({ ...form, propietario_id: e.target.value })
           }
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Sin asignar</option>
           {profiles.map((p) => (
@@ -184,36 +187,34 @@ export function ClienteForm({
               {p.full_name}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Notas</label>
-        <textarea
+        <FieldLabel htmlFor={`${uid}-11`}>Notas</FieldLabel>
+        <Textarea
+          id={`${uid}-11`}
           value={form.notas}
           onChange={(e) => setForm({ ...form, notas: e.target.value })}
           rows={3}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger-700">{error}</p>}
 
-      <div className="flex justify-end gap-3">
-        <button
+      <div className="flex justify-end gap-3 pt-2">
+        <Button
           type="button"
-          onClick={onCancel}
-          className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          onClick={onCancel} variant="ghost"
         >
           Cancelar
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );

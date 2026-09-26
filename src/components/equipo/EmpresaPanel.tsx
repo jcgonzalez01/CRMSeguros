@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useId } from "react";
 import { useRouter } from "next/navigation";
 import {
   eliminarLogoEmpresa,
@@ -9,6 +9,10 @@ import {
   type EmpresaPerfilInput,
 } from "@/lib/actions/empresa";
 import type { EmpresaPerfil } from "@/lib/queries/empresa";
+import { Button } from "@/components/ui/Button";
+import { FieldLabel, Input } from "@/components/ui/fields";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -31,6 +35,7 @@ export function EmpresaPanel({
   perfil: EmpresaPerfil | null;
   logoUrl: string | null;
 }) {
+  const uid = useId();
   const [form, setForm] = useState<EmpresaPerfilInput>(toFormInput(perfil));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,125 +105,129 @@ export function EmpresaPanel({
     }
   }
 
+  const campos = [
+    { key: "nombre_comercial", label: "Nombre comercial" },
+    { key: "rnc", label: "RNC" },
+    { key: "direccion", label: "Dirección", wide: true },
+    { key: "telefono", label: "Teléfono" },
+    { key: "correo", label: "Correo", type: "email" },
+    { key: "sitio_web", label: "Sitio web", wide: true },
+  ] as const;
+
   return (
-    <div className="space-y-8">
-      <section>
-        <h2 className="text-sm font-medium text-gray-700 mb-3">Logo</h2>
-        <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-gray-50">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <Card aria-labelledby={`${uid}-logo`} className="flex flex-col gap-[18px] p-[22px]">
+        <h2 id={`${uid}-logo`} className="text-[15px] font-semibold text-gray-900">
+          Logo
+        </h2>
+        <div className="flex h-40 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-dashed border-gray-300 bg-gray-50">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt="Logo de la empresa"
+              className="h-full w-full object-contain p-3"
+            />
+          ) : (
+            <span className="text-sm text-gray-600">Sin logo</span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          <Button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingLogo}
+          >
+            {uploadingLogo ? "Subiendo…" : logoUrl ? "Reemplazar logo" : "Subir logo"}
+          </Button>
+          {logoUrl && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleRemoveLogo}
+              disabled={removingLogo}
+            >
+              {removingLogo ? "Quitando…" : "Quitar logo"}
+            </Button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleLogoChange}
+          className="hidden"
+        />
+        <div>
+          <p className="text-[13px] text-gray-600">PNG, JPEG o WebP. Máximo 2MB.</p>
+          {logoError && <p className="mt-1 text-[13px] text-danger-700">{logoError}</p>}
+        </div>
+        <div className="flex flex-col gap-2 border-t border-gray-100 pt-4">
+          <span className="text-xs font-medium text-gray-600">Así se verá en el menú</span>
+          <div className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white p-3">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Logo de la empresa" className="h-full w-full object-contain" />
+              <img
+                src={logoUrl}
+                alt=""
+                className="h-[34px] w-[34px] rounded-[9px] object-contain"
+              />
             ) : (
-              <span className="text-xs text-gray-400">Sin logo</span>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingLogo}
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+              <div
+                aria-hidden="true"
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-blue-600 text-sm font-bold text-white"
               >
-                {uploadingLogo ? "Subiendo…" : logoUrl ? "Reemplazar logo" : "Subir logo"}
-              </button>
-              {logoUrl && (
-                <button
-                  type="button"
-                  onClick={handleRemoveLogo}
-                  disabled={removingLogo}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
-                >
-                  {removingLogo ? "Quitando…" : "Quitar logo"}
-                </button>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={handleLogoChange}
-              className="hidden"
-            />
-            <p className="text-xs text-gray-400 mt-2">PNG, JPEG o WebP. Máximo 2MB.</p>
-            {logoError && <p className="text-xs text-red-600 mt-1">{logoError}</p>}
+                CS
+              </div>
+            )}
+            <span className="text-[15px] font-semibold tracking-tight text-gray-900">
+              {perfil?.nombre_comercial || "CRM Seguros"}
+            </span>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <section>
-        <h2 className="text-sm font-medium text-gray-700 mb-3">Datos de la empresa</h2>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Nombre comercial</label>
-              <input
-                value={form.nombre_comercial}
-                onChange={(e) => setForm({ ...form, nombre_comercial: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">RNC</label>
-              <input
-                value={form.rnc}
-                onChange={(e) => setForm({ ...form, rnc: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1">Dirección</label>
-              <input
-                value={form.direccion}
-                onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Teléfono</label>
-              <input
-                value={form.telefono}
-                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Correo</label>
-              <input
-                type="email"
-                value={form.correo}
-                onChange={(e) => setForm({ ...form, correo: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1">Sitio web</label>
-              <input
-                value={form.sitio_web}
-                onChange={(e) => setForm({ ...form, sitio_web: e.target.value })}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+      <Card aria-labelledby={`${uid}-datos`}>
+        <CardHeader title="Datos de la empresa" id={`${uid}-datos`} />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {campos.map((c, i) => {
+              const id = `${uid}-${i + 1}`;
+              return (
+                <div
+                  key={c.key}
+                  className={"wide" in c && c.wide ? "sm:col-span-2" : undefined}
+                >
+                  <FieldLabel htmlFor={id}>{c.label}</FieldLabel>
+                  <Input
+                    id={id}
+                    type={"type" in c ? c.type : undefined}
+                    value={form[c.key]}
+                    onChange={(e) => setForm({ ...form, [c.key]: e.target.value })}
+                  />
+                </div>
+              );
+            })}
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {success && !error && <p className="text-sm text-green-700">Guardado.</p>}
+          {error && <p className="text-sm text-danger-700">{error}</p>}
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-            >
+          <div className="flex items-center gap-3.5 pt-1">
+            <Button type="submit" disabled={saving}>
               {saving ? "Guardando…" : "Guardar cambios"}
-            </button>
+            </Button>
+            {success && !error && (
+              <span
+                role="status"
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-success-700"
+              >
+                <Icon name="check" size={15} strokeWidth={2.5} />
+                Guardado.
+              </span>
+            )}
           </div>
         </form>
-      </section>
+      </Card>
     </div>
   );
 }

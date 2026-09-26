@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaLogoUrl } from "@/lib/queries/empresa";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { SignOutButton } from "@/components/layout/SignOutButton";
 
 export default async function AppLayout({
   children,
@@ -38,60 +37,37 @@ export default async function AppLayout({
   const logoUrl = getEmpresaLogoUrl(supabase, perfil?.logo_path ?? null);
 
   const displayName = profile?.full_name ?? user.email ?? "";
-  const initials = displayName
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   const isAdmin = profile?.role === "Admin";
   const empresaSuspendida = isAdmin && profile?.empresa?.activa === false;
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row bg-gray-50">
+    <div className="flex flex-1 flex-col bg-canvas md:flex-row">
       <Sidebar
         role={profile?.role ?? "Admin"}
         permisos={permisos ?? []}
         logoUrl={logoUrl}
         nombreComercial={perfil?.nombre_comercial}
+        displayName={displayName}
+        empresaNombre={isAdmin ? profile?.empresa?.nombre : null}
       />
-      <div className="flex flex-1 flex-col min-w-0">
-        <header className="hidden md:flex items-center justify-end gap-3 border-b border-gray-200 bg-white px-6 py-3">
-          {isAdmin && profile?.empresa?.nombre && (
-            <>
-              <span className="text-sm font-medium text-gray-900">
-                {profile.empresa.nombre}
-              </span>
-              <span className="h-5 w-px bg-gray-200" />
-            </>
-          )}
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700">
-              {initials || "?"}
-            </div>
-            <span className="text-sm text-gray-700">{displayName}</span>
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-10 md:py-8">
+        {empresaSuspendida ? (
+          <div className="mx-auto max-w-md rounded-[14px] border border-warning-200 bg-warning-50 p-6 text-center">
+            <h1 className="text-lg font-semibold text-warning-700">
+              Cuenta suspendida
+            </h1>
+            <p className="mt-2 text-sm text-warning-700">
+              Tu empresa está desactivada. Contacta al administrador de la
+              plataforma para reactivarla.
+            </p>
           </div>
-          <span className="h-5 w-px bg-gray-200" />
-          <SignOutButton />
-        </header>
-        <main className="flex-1 p-4 md:p-6">
-          {empresaSuspendida ? (
-            <div className="mx-auto max-w-md rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
-              <h1 className="text-lg font-semibold text-amber-900">
-                Cuenta suspendida
-              </h1>
-              <p className="mt-2 text-sm text-amber-800">
-                Tu empresa está desactivada. Contacta al administrador de la
-                plataforma para reactivarla.
-              </p>
-            </div>
-          ) : (
-            <div className="mx-auto w-full max-w-6xl">{children}</div>
-          )}
-        </main>
-      </div>
+        ) : (
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6">
+            {children}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
